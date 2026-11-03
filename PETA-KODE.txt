@@ -1,0 +1,43 @@
+PETA KODE - Lari Promed
+=======================
+Game ini memakai HTML + CSS + JavaScript biasa (tanpa library). Buka index.html di browser untuk bermain.
+Kodenya dipecah per tugas supaya mudah dicari. File dimuat berurutan (lihat bagian bawah index.html).
+
+FILE                 ISINYA
+-------------------  --------------------------------------------------------------
+index.html           kerangka halaman: semua layar menu (home, pilih peminatan, pause, dst)
+style.css            tampilan menu (warna, ukuran, tombol)
+
+pengaturan.js        SEMUA ANGKA YANG BOLEH DIUBAH: kecepatan, lompat, banteng, panjang map, data peminatan
+state.js             variabel yang dipakai bersama + simpan/muat progres (localStorage)
+gambar.js            memuat gambar PNG & menggambarnya
+rintangan.js         jenis-jenis rintangan & cara membuat rintangan di sepanjang map
+suara.js             musik latar & efek suara (dibuat browser, tanpa file mp3)
+kontrol.js           keyboard & layar sentuh
+game.js              ISI PERMAINAN: mulai level, gerak, tabrakan, banteng, menang/kalah
+render.js            menggambar semuanya ke layar tiap frame
+menu.js              pindah layar, tombol-tombol, peta pilih peminatan, pause, gambar UI
+main.js              memulai loop permainan (paling akhir)
+
+assets/              semua gambar (karakter, tiap map, UI). Daftar gambar UI: assets/ui/README.txt
+
+ALUR PERMAINAN SINGKAT
+----------------------
+1. Klik "Main"            -> menu.js memanggil startLevel(-1)  (-1 = prolog)
+2. startLevel (game.js)   -> menyiapkan level, pemain, rintangan, menunggu gambar selesai dimuat
+3. loop (main.js)         -> tiap frame memanggil update() lalu render()
+4. update (game.js)       -> gerak pemain, banteng mengejar, cek tabrakan, cek tertangkap / sampai gerbang
+5. render (render.js)     -> menggambar background, rintangan, banteng, pemain, efek
+6. Sampai gerbang         -> finishLevel() -> progres disimpan -> kembali ke layar pilih peminatan
+
+YANG SERING INGIN DIUBAH
+------------------------
+- Game terlalu sulit / mudah : pengaturan.js  (SPEED, BULL_SPEED, START_GAP, MAX_GAP)
+- Lompat lebih tinggi        : pengaturan.js  (JUMP, JUMP2)
+- Map lebih panjang          : pengaturan.js  (PANJANG_MAP, PANJANG_PROLOG)
+- Background looping / tidak : pengaturan.js  (BG_LOOPING: false = background panjang, true = diulang)
+- Rintangan lebih banyak     : pengaturan.js  (PENGALI_JARAK_RINTANGAN, makin kecil = makin rapat)
+- Peluang tiap rintangan     : rintangan.js   (fungsi pilihJenis)
+- Nama peminatan / studio    : pengaturan.js  (MAPS)
+- Gambar rintangan / banteng : timpa file PNG di assets/<map>/ dengan nama yang sama
+- Layar loading (teks, lama)   : pengaturan.js  (MIN_MEMUAT, deskripsi tiap peminatan di MAPS, TEKS_PROLOG); animasi: assets/ui/loading-1..8.png
