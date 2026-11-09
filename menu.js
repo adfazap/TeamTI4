@@ -313,7 +313,7 @@ gambarLogo.onload = function(){
   $('logo').src = gambarLogo.src;
   $('welcome').classList.add('ada-logo');
 };
-gambarLogo.src = 'assets/ui/logo.png';
+gambarLogo.src = 'assets/ui/logo_blm.png';
 
 // tulisan "GAME OVER"
 const gambarGameOver = new Image();
