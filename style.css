@@ -1,4 +1,4 @@
-:root{--accent:#ff4d6d;--accent2:#ff8a3d;--glass:rgba(14,16,36,.6);--ib:clamp(30px,5vw,42px)}
+:root{--kb:clamp(54px,17vh,84px);--opasitas-tombol:.75;--accent:#ff4d6d;--accent2:#ff8a3d;--glass:rgba(14,16,36,.6);--ib:clamp(30px,5vw,42px)}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 body{background:#05060d;display:flex;justify-content:center;align-items:center;color:#fff;
@@ -86,11 +86,68 @@ button{flex-shrink:0}
   #howto .howto{gap:6px;max-width:94vw;font-size:clamp(11px,3.3vh,13px);line-height:1.3}
 }
 
+/* ---- tombol layar sentuh (Lari / Lompat / Tunduk): hanya muncul di perangkat sentuh saat bermain ---- */
+#kontrolHP{display:none}
+body.sentuh.main-tombol #kontrolHP{display:block}
+#kontrolHP button{position:absolute;bottom:14px;z-index:6;width:var(--kb);height:var(--kb);padding:0;border-radius:50%;display:grid;place-items:center;
+  font-size:calc(var(--kb) * .5);background:var(--glass);border:2px solid rgba(255,255,255,.7);color:#fff;box-shadow:none;
+  opacity:var(--opasitas-tombol);touch-action:none;-webkit-user-select:none;user-select:none}
+#btnLari{left:16px;width:calc(var(--kb) * 1.3) !important;height:calc(var(--kb) * 1.3) !important}
+#btnLompat{right:16px}
+#btnTunduk{right:calc(16px + var(--kb) + 14px)}
+#kontrolHP button.tekan{transform:scale(.9);filter:brightness(1.4)}
+#kontrolHP button.gambar{width:auto !important;height:var(--kb) !important;filter:none}
+#btnLari.gambar{height:calc(var(--kb) * 1.3) !important}
+body.sentuh #btnSembunyi{opacity:var(--opasitas-tombol)}
+/* layar pengaturan */
+.setelan{display:flex;flex-direction:column;gap:12px;max-width:min(86vw,520px);font-weight:600;font-size:clamp(12px,2.6vh,18px)}
+.setelan .baris{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.setelan input[type=range]{flex:1 1 160px;accent-color:var(--accent2)}
+.setelan input[type=checkbox]{width:1.3em;height:1.3em;accent-color:var(--accent2)}
+.contoh{display:flex;align-items:center;gap:10px}
+#contohTombol{position:static;width:var(--kb);height:var(--kb);padding:0;border-radius:50%;background:var(--glass);border:2px solid rgba(255,255,255,.7);
+  color:#fff;box-shadow:none;font-size:calc(var(--kb) * .5);opacity:var(--opasitas-tombol)}
+#contohTombol.gambar{width:auto;height:var(--kb) !important;filter:none}
+
+.panel .row{gap:clamp(6px,1.2vw,12px)}
+.panel .row button{padding:.6em clamp(.9em,1.8vw,1.6em)}
+.panel .row.links{gap:18px}
+
+/* HP landscape: kotak menu di home dipadatkan supaya semua tombol & tautan muat */
+@media (max-height:520px){
+  .panel p{display:none}
+  .panel{gap:6px !important;padding-top:10px !important;padding-bottom:10px !important}
+  .panel button{font-size:clamp(11px,3.6vh,15px)}
+}
+
+#btnSelectHome.gambar{height:clamp(34px,9vh,54px) !important}
+#btnSelectHome{position:absolute;top:10px;left:12px;z-index:5;padding:.45em 1.1em;font-size:clamp(11px,2.2vh,16px)}
+
+/* ---- Koleksi Informasi: papan info yang sudah dibaca (abu-abu = belum) ---- */
+#koleksi{gap:clamp(4px,1.4vh,12px)}
+#koleksiIsi{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(6px,1.4vw,14px);width:min(94vw,calc((100vh - 150px) * 2.3));width:min(94vw,calc((100dvh - 150px) * 2.3))}
+.kol{display:flex;flex-direction:column;gap:clamp(4px,1vh,8px);min-width:0}
+.kol h3{margin:0;font-size:clamp(9px,2.2vh,14px);line-height:1.15;text-align:center;font-weight:700;height:3.5em;display:grid;place-items:center;overflow:hidden}
+.kol.lengkap h3::after{content:' ★';color:#ffd23c}
+.kartu{position:relative;width:100%;aspect-ratio:16/9;padding:0;border-radius:8px;border:2px solid rgba(255,255,255,.8);overflow:hidden;box-shadow:none;
+  background:#222 center/cover no-repeat;display:grid;place-items:center;font-size:clamp(9px,2.2vh,14px)}
+.kartu.terkunci{background:#4b4f5c;border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.55);filter:grayscale(1);cursor:not-allowed;font-weight:700}
+.kartu.terkunci:hover{transform:none;filter:grayscale(1)}
+.kartu.terkunci span{font-size:1.9em}
+/* pop-up kecil saat kartu koleksi ditekan (ketuk di mana saja untuk menutup) */
+#popInfo{position:fixed;inset:0;z-index:30;display:none;place-items:center;background:rgba(0,0,0,.45)}
+#popInfo.buka{display:grid}
+#popInfoGambar{width:min(52vw,360px);border-radius:10px;border:3px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+/* tombol home: 2 x 2 (Main | Lanjutkan  /  Cara bermain | Koleksi Info) */
+.menu2x2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,1.2vw,12px);width:100%}
+.menu2x2 button{width:100%;padding:.6em .8em}
+.menu2x2 button.gambar{width:auto !important;justify-self:center}
+
 /* ---- layar penuh sejak awal: game memenuhi seluruh jendela ---- */
 #game{position:fixed;inset:0;background:#000;overflow:hidden}
 canvas{object-fit:contain}
 #btnPause{right:calc(12px + 2 * (var(--ib) + 8px));display:none}
-#btnSembunyi{top:auto;bottom:14%;right:14px;width:calc(var(--ib) * 1.5);height:calc(var(--ib) * 1.5);display:none;touch-action:none;z-index:6;font-size:1.6em}
+#btnSembunyi{top:auto;bottom:calc(var(--kb) * 1.15 + 36px);right:14px;width:calc(var(--ib) * 1.5);height:calc(var(--ib) * 1.5);display:none;touch-action:none;z-index:6;font-size:1.6em}
 button.alt{background:#fff;color:#14213d;box-shadow:0 5px 0 #b9c3d6}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 

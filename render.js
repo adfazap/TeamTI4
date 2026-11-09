@@ -10,6 +10,7 @@ function render(){
 
   gambarBackground();
   gambarGerbang();
+  gambarJasMelayang();
   const bersembunyi = pemain.sembunyi && pemain.sudahDiPapan;
   gambarPapanInfo();
   if (bersembunyi) gambarPemain();            // bersembunyi: pemain digambar DI BELAKANG objek
@@ -47,6 +48,49 @@ function gambarBackground(){
 /* ----- gerbang finish di ujung map ----- */
 function gambarGerbang(){
   drawImg(level.gerbang, level.panjang - kameraX(), GROUND - 260, 200, 260, '#d4a017');
+}
+
+/* ----- prolog: jas dokter melayang (berkilau). Hilang kalau sudah diambil. Petunjuk muncul saat mendekat ----- */
+function gambarJasMelayang(){
+  if (!level.prolog || pemain.sudahGanti) return;
+  const j = posisiJas();
+  const layarX = j.x - kameraX();
+  if (layarX < -120 || layarX > W + 120) return;
+  const u = JAS.ukuran;
+
+  // lingkaran cahaya berdenyut di belakang jas
+  const denyut = 0.5 + 0.5 * Math.sin(pemain.waktu * 5);
+  const sinar = ctx.createRadialGradient(layarX, j.y, 4, layarX, j.y, u * (0.8 + 0.15 * denyut));
+  sinar.addColorStop(0, 'rgba(255,240,150,0.85)');
+  sinar.addColorStop(1, 'rgba(255,240,150,0)');
+  ctx.fillStyle = sinar;
+  ctx.fillRect(layarX - u, j.y - u, u * 2, u * 2);
+
+  drawImg(level.gambarJas, layarX - u / 2, j.y - u / 2, u, u, '#fff');
+
+  // bintang kecil berputar
+  for (let i = 0; i < 3; i++) {
+    const a = pemain.waktu * 2 + i * 2.1;
+    const bx = layarX + Math.cos(a) * u * 0.7, by = j.y + Math.sin(a) * u * 0.55;
+    ctx.fillStyle = '#fff3a0';
+    ctx.fillRect(bx - 3, by - 1, 6, 2);
+    ctx.fillRect(bx - 1, by - 3, 2, 6);
+  }
+
+  // petunjuk saat sudah dekat
+  const sisa = j.x - pemain.x;
+  if (sisa > -60 && sisa < JAS.jarakPetunjuk) {
+    const lebar = Math.min(460, W - 20);
+    ctx.globalAlpha = 0.85 + 0.15 * Math.sin(pemain.waktu * 6);
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(W / 2 - lebar / 2, 66, lebar, 34);
+    ctx.fillStyle = '#ffe36b';
+    ctx.font = '700 17px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Lompat & ambil jas dokter! Wajib untuk menyelesaikan prolog', W / 2, 88, lebar - 12);
+    ctx.textAlign = 'left';
+    ctx.globalAlpha = 1;
+  }
 }
 
 /* ----- papan info peminatan + dua tiangnya ----- */

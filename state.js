@@ -48,3 +48,18 @@ function muat(){
   if (prologSelesai) baju = 'promed';
 }
 muat();   // jalan sekali saat game dibuka
+
+/* ----- koleksi informasi: papan info yang sudah dibaca (sambil ngumpet), disimpan terpisah ----- */
+const KUNCI_INFO = 'promedInfo';
+const infoDibaca = new Set();           // isi: '<nomor map>-<nomor papan>' contoh '2-1' = map 3 papan 1
+
+function infoSudahDibaca(mapIndex, nomor){ return infoDibaca.has(mapIndex + '-' + nomor); }
+
+function tandaiInfoDibaca(mapIndex, nomor){
+  infoDibaca.add(mapIndex + '-' + nomor);
+  try { localStorage.setItem(KUNCI_INFO, JSON.stringify(Array.from(infoDibaca))); } catch (e) {}
+}
+
+try {
+  for (const k of JSON.parse(localStorage.getItem(KUNCI_INFO) || '[]')) infoDibaca.add(String(k));
+} catch (e) {}

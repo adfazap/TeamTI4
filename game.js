@@ -32,6 +32,7 @@ function startLevel(mapIndex){
     latar: loadImg(folder + 'bg.jpg'),                // background pendek (dipakai kalau looping)
     latarPanjang: loadImg(folder + 'bg-panjang.jpg'), // background panjang (tidak looping)
     gerbang: loadImg(folder + 'gate.png'),
+    gambarJas: prolog ? loadImg(folder + 'jas.png') : null,   // jas dokter melayang (hanya prolog)
     gambarBanteng: loadImg(folder + 'chaser.png'),
     animBanteng: {},          // gambar animasi banteng: run, wait, charge
     aksiBanteng: 'run',       // sedang apa banteng: 'run', 'wait' (menunggu), 'charge' (menyeruduk), 'bingung'
@@ -78,7 +79,7 @@ function startLevel(mapIndex){
   papan = [];
   if (!prolog) {
     for (let i = 1; i <= 3; i++) {
-      papan.push({ x: level.panjang * i / 4 + 200, gambar: loadImg(folder + 'info' + i + '.png'),
+      papan.push({ nomor: i, x: level.panjang * i / 4 + 200, gambar: loadImg(folder + 'info' + i + '.png'),
                    objek: loadImg(folder + 'hide_obj.png'),   // objek tempat bersembunyi (beda tiap map)
                    sisa: SEMBUNYI_MAX,     // sisa waktu bersembunyi di papan ini
                    dipakai: false });      // sudah pernah dipakai bersembunyi? (hanya sekali per papan)
@@ -91,6 +92,7 @@ function startLevel(mapIndex){
 
   // ----- tunggu semua gambar siap, baru mulai -----
   const daftarGambar = [level.latar, level.latarPanjang, level.gerbang, level.gambarBanteng];
+  if (level.gambarJas) daftarGambar.push(level.gambarJas);
   for (const aksi in level.animBanteng) {
     for (const g of level.animBanteng[aksi]) daftarGambar.push(g);
   }
@@ -249,11 +251,26 @@ function kurangiWaktu(dt){
   pemain.waktu += dt;
   pemain.kilat -= dt;
 
-  if (level.prolog && !pemain.sudahGanti && pemain.x >= level.panjang / 2) {
+  // prolog: baju baru berganti HANYA kalau jas dokter yang melayang diambil
+  if (level.prolog && !pemain.sudahGanti && jasMenyentuhPemain()) {
     pemain.sudahGanti = true;
     baju = 'promed';        // ganti jas dokter
     pemain.kilat = 1.2;     // kilatan putih + tulisan "Ganti pakaian!"
   }
+}
+
+// posisi tengah jas dokter (melayang naik-turun pelan)
+function posisiJas(){
+  return { x: level.panjang / 2 + 40, y: GROUND - JAS.tinggi + Math.sin(pemain.waktu * 3) * 8 };
+}
+
+// true kalau badan pemain menyentuh jas
+function jasMenyentuhPemain(){
+  const j = posisiJas();
+  const r = JAS.ukuran / 2;
+  const kiri = pemain.x + 10, kanan = pemain.x + 70;     // badan pemain
+  const bawah = pemain.y, atas = pemain.y - 110;
+  return kanan > j.x - r && kiri < j.x + r && bawah > j.y - r && atas < j.y + r;
 }
 
 // Gravitasi, lompat, dan berdiri di atas rintangan besar / mobil.
@@ -410,6 +427,7 @@ function urusSembunyi(dt){
     if (sasaran - pemain.x <= 1) {
       pemain.sudahDiPapan = true;
       b.dipakai = true;                       // satu papan hanya bisa dipakai sekali
+      tandaiInfoDibaca(level.mapIndex, b.nomor);   // informasinya masuk ke Koleksi di layar awal
       level.bingungWaktu = 0;
     }
     return;
@@ -481,6 +499,7 @@ function caught(){
 function gameOver(){
   setPlaying(false);
   $('overInfo').textContent = level.prolog ? 'Prolog' : MAPS[level.mapIndex].name;
+  $('overPesan').textContent = level.gagalJas ? 'Kamu sampai di gerbang tanpa mengambil jas dokter!' : 'Kamu tertangkap pengejar!';
   showScreen('gameover');
 }
 
@@ -488,6 +507,13 @@ function gameOver(){
 function finishLevel(){
   setPlaying(false);
   stopMusic();
+
+  if (level.prolog && !pemain.sudahGanti) {   // sampai gerbang tanpa mengambil jas dokter: GAME OVER walau sudah finish
+    level.gagalJas = true;
+    bunyiGameOver();
+    gameOver();
+    return;
+  }
 
   if (level.prolog) {
     baju = 'promed';

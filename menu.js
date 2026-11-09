@@ -13,6 +13,7 @@ function showScreen(id){
   if (id) $(id).classList.add('show');
   if (id === 'welcome') updateContinue();
   fokusAwal(id);                       // keyboard: sorot tombol utama layar ini
+  perbaruiTombolSentuh();              // tombol sentuh Lari/Lompat/Tunduk hanya saat bermain
 }
 
 // Layar pesan dengan satu tombol (dipakai saat prolog / map selesai)
@@ -34,6 +35,7 @@ function tampilkanPetunjuk(aksiMulai){
   let baris;
   if (level.prolog) {
     baris = [
+      [folder + 'jas.png',    'Jas dokter melayang',      'Lompat dan ambil di tengah prolog. WAJIB: kalau sampai gerbang tanpa mengambilnya, game over.'],
       [folder + 'buku.png',   'Buku, meja, kertas ujian', 'Lompat dengan  ↑ / Spasi. Banteng bisa menghancurkannya.'],
       [folder + 'big.png',    'Blok besar',               'Lompat dan naiki. Banteng tidak bisa menghancurkannya, ia melompatinya.'],
       [folder + 'banner.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],
@@ -41,7 +43,7 @@ function tampilkanPetunjuk(aksiMulai){
   } else {
     baris = [
       [folder + 'ob1.png',  'Rintangan kecil',            'Lompat dengan  ↑ / Spasi. Banteng bisa menghancurkannya.'],
-      [folder + 'tall.png', 'Rintangan tinggi',           'Double jump: tekan  ↑ / Spasi  lagi saat di udara.'],
+      [folder + 'tall.png', 'Rintangan tinggi',           'Lompat tepat waktu. Kalau kurang tinggi, tekan  ↑ / Spasi  lagi saat di udara (double jump).'],
       [folder + 'big.png',  'Blok besar dan mobil',       'Lompat dan naiki. Banteng tidak bisa menghancurkannya, ia melompatinya.'],
       [folder + 'hang.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],
       ['assets/ui/btn-hide.png', 'Papan info',            'Pencet  E  di dekat papan untuk bersembunyi di kolongnya dan membaca. Banteng jadi bingung.'],
@@ -144,6 +146,7 @@ function setPlaying(nilai){
   $('btnPause').style.display = nilai ? 'grid' : 'none';
   if (!nilai) $('btnSembunyi').style.display = 'none';
   $('hud').style.display = nilai ? '' : 'none';
+  perbaruiTombolSentuh();
 }
 
 function pauseGame(){
@@ -195,6 +198,58 @@ function updateContinue(){
 $('btnHow').onclick = function(){ showScreen('howto'); };
 $('btnBack').onclick = function(){ showScreen('welcome'); };
 $('linkFS').onclick = toggleFullscreen;
+
+/* ----- layar Koleksi Informasi: papan info yang sudah dibaca saat ngumpet; yang belum = abu-abu ----- */
+function bukaKoleksi(){
+  let html = '', jumlah = 0;
+  for (let i = 0; i < MAPS.length; i++) {
+    let dibaca = 0, kartu = '';
+    for (let n = 1; n <= 3; n++) {
+      if (infoSudahDibaca(i, n)) {
+        dibaca++;
+        kartu += '<button class="kartu" data-map="' + i + '" data-no="' + n + '" title="Info ' + n + '" style="background-image:url(assets/map' + (i + 1) + '/info' + n + '.png)"></button>';
+      } else {
+        kartu += '<button class="kartu terkunci" disabled title="Ngumpet di papan info ke-' + n + ' map ini untuk membacanya"><span>🔒</span></button>';
+      }
+    }
+    jumlah += dibaca;
+    html += '<div class="kol' + (dibaca === 3 ? ' lengkap' : '') + '"><h3>' + MAPS[i].name + '</h3>' + kartu + '</div>';
+  }
+  $('koleksiIsi').innerHTML = html;
+  $('koleksiJumlah').textContent = 'Terkumpul ' + jumlah + '/' + (MAPS.length * 3) + '. Yang abu-abu belum dibaca: ngumpet di balik objek papan info (tekan E) untuk membukanya.';
+  for (const k of $('koleksiIsi').querySelectorAll('.kartu:not(.terkunci)')) {
+    k.onclick = function(){
+      $('popInfoGambar').src = 'assets/map' + (Number(k.dataset.map) + 1) + '/info' + k.dataset.no + '.png';
+      $('popInfo').classList.add('buka');
+    };
+  }
+  showScreen('koleksi');
+}
+$('btnKoleksi').onclick = bukaKoleksi;
+$('btnSelectHome').onclick = function(){ showScreen('welcome'); };      // dari peta pilihan kembali ke home
+$('btnKoleksiKembali').onclick = function(){ showScreen('welcome'); };
+$('popInfo').onclick = function(){ this.classList.remove('buka'); };
+
+/* ----- layar pengaturan tombol layar sentuh ----- */
+let layarSebelumSetelan = 'welcome';
+function bukaSetelan(dari){
+  layarSebelumSetelan = dari;
+  $('cekTampil').checked = setelanSentuh.tampil;
+  $('geserOpasitas').value = setelanSentuh.opasitas;
+  $('nilaiOpasitas').textContent = setelanSentuh.opasitas + '%';
+  showScreen('setelan');
+}
+$('linkSetelan').onclick = function(){ bukaSetelan('welcome'); };
+$('linkSetelanJeda').onclick = function(){ bukaSetelan('pause'); };
+$('btnSetKembali').onclick = function(){ showScreen(layarSebelumSetelan); };
+$('cekTampil').onchange = function(){ setelanSentuh.tampil = this.checked; simpanSetelanSentuh(); terapkanSetelanSentuh(); };
+$('geserOpasitas').oninput = function(){
+  setelanSentuh.opasitas = Number(this.value);
+  $('nilaiOpasitas').textContent = this.value + '%';
+  simpanSetelanSentuh(); terapkanSetelanSentuh();
+};
+terapkanSetelanSentuh();
+setInterval(perbaruiTombolSentuh, 300);
 $('btnFS').onclick = toggleFullscreen;
 
 $('btnPause').onclick = pauseGame;
@@ -279,6 +334,14 @@ const GAMBAR_TOMBOL = {
   btnPause: 'btn-pause.png',
   btnMulai: 'btn-start.png',
   btnSembunyi: 'btn-hide.png',
+  btnLari: 'btn-run.png',
+  btnTunduk: 'btn-duck.png',
+  btnLompat: 'btn-jump.png',
+  contohTombol: 'btn-jump.png',
+  btnSetKembali: 'btn-back.png',
+  btnKoleksi: 'btn-info.png',
+  btnKoleksiKembali: 'btn-back.png',
+  btnSelectHome: 'btn-home.png',
   btnOverRetry: 'btn-retry.png',
   btnOverMenu: 'btn-menu.png',
 };
@@ -313,7 +376,7 @@ gambarLogo.onload = function(){
   $('logo').src = gambarLogo.src;
   $('welcome').classList.add('ada-logo');
 };
-gambarLogo.src = 'assets/ui/logo_blm.png';
+gambarLogo.src = 'assets/ui/logo.png';
 
 // tulisan "GAME OVER"
 const gambarGameOver = new Image();
@@ -350,7 +413,7 @@ function tampilkanMemuat(mapIndex){
 
 // tombol yang pertama kali disorot di tiap layar (kalau tidak bisa dipakai, diganti tombol pertama yang aktif)
 const TOMBOL_UTAMA = {
-  welcome: 'btnContinue', howto: 'btnBack', pause: 'btnResume',
+  welcome: 'btnContinue', howto: 'btnBack', pause: 'btnResume', setelan: 'btnSetKembali', koleksi: 'btnKoleksiKembali',
   gameover: 'btnOverRetry', done: 'btnNext', ending: 'btnAgain', petunjuk: 'btnMulai',
 };
 
@@ -426,6 +489,11 @@ addEventListener('keydown', function(e){
     }
   } else if (e.code === 'Escape' || e.code === 'Backspace') {
     if (layar.id === 'howto') $('btnBack').click();
+    else if (layar.id === 'setelan') $('btnSetKembali').click();
+    else if (layar.id === 'koleksi') {
+      if ($('popInfo').classList.contains('buka')) $('popInfo').click();   // tutup pop-up dulu
+      else $('btnKoleksiKembali').click();
+    }
     else if (layar.id === 'select') showScreen('welcome');
     else if (layar.id === 'petunjuk') openSelect();         // batal masuk map
   }

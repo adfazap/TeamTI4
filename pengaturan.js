@@ -40,11 +40,14 @@ const RAGE_DECAY = 0.12;    // banteng kembali normal pelan-pelan sebesar ini pe
 // baju karakter yang berlari di layar awal (tombol Main): 'awal' = baju biasa, 'promed' = jas dokter
 const BAJU_HOME = 'home';
 
+// jas dokter melayang di prolog: harus diambil (lompat) supaya baju berganti dan prolog bisa diselesaikan
+const JAS = { ukuran: 84, tinggi: 185, jarakPetunjuk: 900 };   // tinggi = tinggi tengah jas dari tanah (makin besar = makin tinggi)
+
 // ukuran banteng di layar (1 = ukuran asli gambar, 1.4 = 40% lebih besar). Moncong tetap di tempat yang sama.
 const SKALA_BANTENG = 1.4;
 
 // jumlah gambar lari tiap map (urutan: prolog, map1..map5). Map yang gambarnya lebih banyak, isi angkanya.
-const JUMLAH_LARI = [4, 6, 6, 7, 6, 6];
+const JUMLAH_LARI = [6, 6, 6, 7, 6, 6];
 function jumlahFrame(aksi, nomorMap){ return aksi === 'run' ? JUMLAH_LARI[nomorMap] : ANIM_BANTENG[aksi].jumlah; }
 
 const ANIM_BANTENG = {
@@ -100,7 +103,7 @@ const MAPS = [
 // ----- layar loading sebelum masuk map (gelap, animasi PNG, teks tipis tentang map) -----
 const MIN_MEMUAT = 2200;         // lama minimal layar loading (milidetik) supaya teksnya sempat terbaca
 const MIN_MEMUAT_ULANG = 700;    // kalau mengulang map yang sama, loading dibuat lebih singkat
-const TEKS_PROLOG = 'Berlari di kampus dan bersiap menjelajahi peminatan Promed.';
+const TEKS_PROLOG = 'Berlari sampai mendapatkan jakun dan bersiap menjelajahi peminatan Promed.';
 
 /* ----- posisi tiap map di layar "Pilih Peminatan" (x%, y%) ----- */
 const POS = [[30, 32], [30, 68], [52, 32], [52, 68], [74, 50]];

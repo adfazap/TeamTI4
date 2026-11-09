@@ -18,6 +18,11 @@
   <div id="hud"></div>
   <button id="btnPause" title="Jeda (P)">⏸</button>
   <button id="btnSembunyi" title="Sembunyi di balik objek (E)">👁</button>
+  <div id="kontrolHP">
+    <button id="btnLari" title="Lari">➜</button>
+    <button id="btnTunduk" title="Menunduk">⬇</button>
+    <button id="btnLompat" title="Lompat">⬆</button>
+  </div>
   <button id="btnFS" title="Layar penuh (F)">⛶</button>
   <button id="btnMute" title="Suara">🔊</button>
   <div id="rotate">Putar HP ke mode landscape 📱↻</div>
@@ -60,9 +65,11 @@
       <h1><span class="t1">Lari</span><span class="t2">Promed</span></h1>
       <div class="panel">
         <p>Berlari di kampus, ganti jas dokter di tengah jalan, lalu pilih peminatan yang mau kamu jelajahi. Lima map, lima peminatan, satu ending.</p>
-        <button id="btnContinue">Lanjutkan</button>
-        <div class="row"><button id="btnPlay">Main</button><button id="btnHow">Cara bermain</button></div>
-        <button id="linkFS" class="link">Layar penuh</button>
+        <div class="menu2x2">
+          <button id="btnPlay">Main</button><button id="btnContinue">Lanjutkan</button>
+          <button id="btnHow">Cara bermain</button><button id="btnKoleksi" class="alt">Koleksi Info</button>
+        </div>
+        <div class="row links"><button id="linkFS" class="link">Layar penuh</button><button id="linkSetelan" class="link">Atur tombol HP</button></div>
       </div>
     </div>
   </section>
@@ -70,11 +77,12 @@
   <section id="howto" class="screen">
     <h2>Cara Bermain</h2>
     <ul class="howto">
-      <li>🏃 <b>Tahan →</b> untuk berlari maju (lepas = berhenti, tidak bisa mundur). <b>Spasi / ↑</b> untuk melompat (tekan lagi di udara = <b>double jump</b>). HP: tahan bagian tengah layar untuk lari, ketuk bagian atas untuk lompat.</li>
-      <li>⬇ Rintangan yang <b>menggantung di atas kepala</b>: tahan <b>↓ / S / bagian bawah layar</b> untuk menunduk (karakter berganti gambar menunduk).</li>
-      <li>🧱 Semua rintangan padat: menabrak = <b>tertahan</b> dan banteng makin dekat. Lompati yang kecil, <b>naiki blok besar &amp; mobil</b> (tidak bisa dihancurkan banteng).</li>
-      <li>🐂 Banteng mulai mengejar saat kamu mulai lari. Jangan berhenti terlalu lama atau kamu tertangkap!</li>
+      <li>🏃 <b>Tahan →</b> untuk berlari maju (lepas = berhenti, tidak bisa mundur). <b>Spasi / ↑</b> untuk melompat (tekan lagi di udara = <b>double jump</b>). HP: tombol ➜ (lari), ⬆ (lompat), ⬇ (menunduk) di layar.</li>
+      <li>⬇ Rintangan yang <b>menggantung di atas kepala</b>: tahan <b>↓ / S / bagian bawah layar</b> untuk menunduk.</li>
+      <li>🧱 Semua rintangan padat: menabrak = <b>tertahan</b> dan banteng makin dekat. Lompati yang kecil, <b>naiki blok besar &amp; mobil</b> (banteng tidak bisa menghancurkannya, ia melompatinya).</li>
+      <li>🐂 Banteng langsung mengejar begitu hitung mundur selesai. Jangan berhenti terlalu lama atau kamu tertangkap!</li>
       <li>📋 Di <b>kolong papan info</b> ada <b>objek kecil tempat sembunyi</b>. <b>Pencet E</b> (HP: ketuk tombol mata) untuk berlari ke sana dan membaca papan sambil bersembunyi. Banteng jadi bingung dan mondar-mandir! Maksimal 5 detik, sekali per papan. Pencet E lagi untuk keluar.</li>
+      <li>🥼 <b>Prolog:</b> lompat dan ambil <b>jas dokter yang melayang</b> di tengah jalan. Baju baru berganti kalau jas diambil. Sampai gerbang tanpa jas = game over.</li>
       <li>🏁 Selesaikan kelima peminatan untuk membuka FINAL.</li>
       <li>⏸ Tekan <b>P</b>, <b>Enter</b>, atau tombol jeda untuk berhenti sejenak.</li>
       <li>⌨ Di semua menu: <b>panah</b> (atau WASD) untuk memilih tombol, <b>Enter</b> untuk menekan, <b>Esc</b> untuk kembali. <b>M</b> = suara, <b>F</b> = layar penuh.</li>
@@ -93,6 +101,7 @@
     <h2>Pilih Peminatan</h2>
     <small id="progress"></small>
     <div id="cards"></div>
+    <button id="btnSelectHome" class="alt">← Home</button>
   </section>
 
   <section id="memuat" class="screen">
@@ -106,12 +115,36 @@
     <h2>Dijeda</h2>
     <button id="btnResume">Lanjut</button>
     <div class="row"><button id="btnRetry" class="alt">Ulangi</button><button id="btnMenu" class="alt">Menu utama</button></div>
+    <button id="linkSetelanJeda" class="link">Atur tombol HP</button>
+  </section>
+
+  <section id="koleksi" class="screen">
+    <h2>Koleksi Informasi</h2>
+    <small id="koleksiJumlah" class="tipis"></small>
+    <div id="koleksiIsi"></div>
+    <button id="btnKoleksiKembali">Kembali</button>
+  </section>
+
+  <div id="popInfo" role="dialog" aria-label="Informasi studio">
+    <img id="popInfoGambar" alt="Informasi studio">
+  </div>
+
+  <section id="setelan" class="screen">
+    <h2>Tombol Layar Sentuh</h2>
+    <div class="setelan">
+      <label class="baris"><input type="checkbox" id="cekTampil"> Tampilkan tombol Lari / Lompat / Tunduk</label>
+      <label class="baris">Transparansi tombol: <b id="nilaiOpasitas">75%</b>
+        <input type="range" id="geserOpasitas" min="15" max="100" step="5" value="75"></label>
+      <div class="contoh"><button type="button" id="contohTombol" tabindex="-1">⬆</button><small>contoh tombol</small></div>
+      <small class="tipis">Kalau tombol disembunyikan, kamu tetap bisa bermain: tahan bagian tengah layar untuk lari, ketuk bagian atas untuk lompat, tahan bagian bawah untuk menunduk. Tombol "sembunyi" di dekat papan info tetap muncul.</small>
+    </div>
+    <button id="btnSetKembali">Kembali</button>
   </section>
 
   <section id="gameover" class="screen">
     <img id="overLogo" alt="Game Over">
     <h1>GAME OVER</h1>
-    <p>Kamu tertangkap pengejar!</p>
+    <p id="overPesan">Kamu tertangkap pengejar!</p>
     <small id="overInfo"></small>
     <div class="row"><button id="btnOverRetry">Ulangi</button><button id="btnOverMenu" class="alt">Menu utama</button></div>
   </section>

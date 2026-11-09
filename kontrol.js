@@ -97,6 +97,46 @@ addEventListener('pointercancel', jariDiangkat);
 
 document.addEventListener('contextmenu', function(e){ e.preventDefault(); });   // matikan menu klik kanan
 
+/* ---- tombol layar sentuh Lari / Lompat / Tunduk + pengaturannya (tampil/sembunyi, transparansi) ---- */
+const PENGATURAN_SENTUH = 'promedSentuh';
+const setelanSentuh = { tampil: true, opasitas: 75 };       // opasitas dalam persen
+try {
+  const simpan = JSON.parse(localStorage.getItem(PENGATURAN_SENTUH) || '{}');
+  if (typeof simpan.tampil === 'boolean') setelanSentuh.tampil = simpan.tampil;
+  if (simpan.opasitas >= 15 && simpan.opasitas <= 100) setelanSentuh.opasitas = simpan.opasitas;
+} catch (err) {}
+
+if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) document.body.classList.add('sentuh');
+
+function terapkanSetelanSentuh(){
+  document.documentElement.style.setProperty('--opasitas-tombol', setelanSentuh.opasitas / 100);
+  document.body.classList.toggle('tombol-tampil', setelanSentuh.tampil);
+  perbaruiTombolSentuh();
+}
+// tombol hanya tampil saat sedang bermain (bukan di menu), dan kalau pemain tidak mematikannya
+function perbaruiTombolSentuh(){
+  document.body.classList.toggle('main-tombol', setelanSentuh.tampil && sedangMain && !dijeda && !menuTerbuka());
+}
+function simpanSetelanSentuh(){
+  try { localStorage.setItem(PENGATURAN_SENTUH, JSON.stringify(setelanSentuh)); } catch (err) {}
+}
+
+function pasangTombolSentuh(id, aksi){
+  const el = $(id);
+  el.addEventListener('pointerdown', function(e){
+    e.preventDefault(); e.stopPropagation();
+    el.classList.add('tekan');
+    if (aksi === 'lompat') lompat(); else sentuhan.set(e.pointerId, aksi);
+  });
+  const lepas = function(e){ el.classList.remove('tekan'); };
+  el.addEventListener('pointerup', lepas);
+  el.addEventListener('pointercancel', lepas);
+  el.addEventListener('pointerleave', lepas);
+}
+pasangTombolSentuh('btnLari', 'lari');
+pasangTombolSentuh('btnTunduk', 'nunduk');
+pasangTombolSentuh('btnLompat', 'lompat');
+
 // tombol layar sentuh "sembunyi" (muncul di dekat papan info): ketuk = sembunyi / keluar
 const tombolSembunyi = $('btnSembunyi');
 tombolSembunyi.addEventListener('pointerdown', function(e){ e.preventDefault(); e.stopPropagation(); togolSembunyi(); });
