@@ -37,10 +37,10 @@ const RAGE_DECAY = 0.12;    // banteng kembali normal pelan-pelan sebesar ini pe
 
 // animasi banteng. Gambarnya: assets/mapN/chaser_run1.png, chaser_wait1.png, chaser_charge1.png, dst.
 // jumlah = banyak gambar, fps = kecepatan gantinya
-// baju karakter yang berlari di layar awal (tombol Main): 'awal' = baju biasa, 'promed' = jas dokter
+// baju karakter yang berlari di layar awal (tombol Main): 'awal' = baju biasa, 'promed' = Jaket kuning
 const BAJU_HOME = 'home';
 
-// jas dokter melayang di prolog: harus diambil (lompat) supaya baju berganti dan prolog bisa diselesaikan
+// Jaket kuning melayang di prolog: harus diambil (lompat) supaya baju berganti dan prolog bisa diselesaikan
 const JAS = { ukuran: 84, tinggi: 185, jarakPetunjuk: 900 };   // tinggi = tinggi tengah jas dari tanah (makin besar = makin tinggi)
 
 // ukuran banteng di layar (1 = ukuran asli gambar, 1.4 = 40% lebih besar). Moncong tetap di tempat yang sama.

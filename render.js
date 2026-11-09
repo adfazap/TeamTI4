@@ -50,7 +50,7 @@ function gambarGerbang(){
   drawImg(level.gerbang, level.panjang - kameraX(), GROUND - 260, 200, 260, '#d4a017');
 }
 
-/* ----- prolog: jas dokter melayang (berkilau). Hilang kalau sudah diambil. Petunjuk muncul saat mendekat ----- */
+/* ----- prolog: jaket kuning melayang (berkilau). Hilang kalau sudah diambil. Petunjuk muncul saat mendekat ----- */
 function gambarJasMelayang(){
   if (!level.prolog || pemain.sudahGanti) return;
   const j = posisiJas();
@@ -87,7 +87,7 @@ function gambarJasMelayang(){
     ctx.fillStyle = '#ffe36b';
     ctx.font = '700 17px Nunito, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Lompat & ambil jas dokter! Wajib untuk menyelesaikan prolog', W / 2, 88, lebar - 12);
+    ctx.fillText('Lompat & ambil jaket kuning! Wajib untuk menyelesaikan prolog', W / 2, 88, lebar - 12);
     ctx.textAlign = 'left';
     ctx.globalAlpha = 1;
   }

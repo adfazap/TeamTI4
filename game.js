@@ -32,7 +32,7 @@ function startLevel(mapIndex){
     latar: loadImg(folder + 'bg.jpg'),                // background pendek (dipakai kalau looping)
     latarPanjang: loadImg(folder + 'bg-panjang.jpg'), // background panjang (tidak looping)
     gerbang: loadImg(folder + 'gate.png'),
-    gambarJas: prolog ? loadImg(folder + 'jas.png') : null,   // jas dokter melayang (hanya prolog)
+    gambarJas: prolog ? loadImg(folder + 'jas.png') : null,   // jaket kuning melayang (hanya prolog)
     gambarBanteng: loadImg(folder + 'chaser.png'),
     animBanteng: {},          // gambar animasi banteng: run, wait, charge
     aksiBanteng: 'run',       // sedang apa banteng: 'run', 'wait' (menunggu), 'charge' (menyeruduk), 'bingung'
@@ -251,15 +251,15 @@ function kurangiWaktu(dt){
   pemain.waktu += dt;
   pemain.kilat -= dt;
 
-  // prolog: baju baru berganti HANYA kalau jas dokter yang melayang diambil
+  // prolog: baju baru berganti HANYA kalau jaket kuning yang melayang diambil
   if (level.prolog && !pemain.sudahGanti && jasMenyentuhPemain()) {
     pemain.sudahGanti = true;
-    baju = 'promed';        // ganti jas dokter
+    baju = 'promed';        // ganti jaket kuning
     pemain.kilat = 1.2;     // kilatan putih + tulisan "Ganti pakaian!"
   }
 }
 
-// posisi tengah jas dokter (melayang naik-turun pelan)
+// posisi tengah jaket kuning (melayang naik-turun pelan)
 function posisiJas(){
   return { x: level.panjang / 2 + 40, y: GROUND - JAS.tinggi + Math.sin(pemain.waktu * 3) * 8 };
 }
@@ -499,7 +499,7 @@ function caught(){
 function gameOver(){
   setPlaying(false);
   $('overInfo').textContent = level.prolog ? 'Prolog' : MAPS[level.mapIndex].name;
-  $('overPesan').textContent = level.gagalJas ? 'Kamu sampai di gerbang tanpa mengambil jas dokter!' : 'Kamu tertangkap pengejar!';
+  $('overPesan').textContent = level.gagalJas ? 'Kamu sampai di gerbang tanpa mengambil jaket kuning!' : 'Kamu tertangkap pengejar!';
   showScreen('gameover');
 }
 
@@ -508,7 +508,7 @@ function finishLevel(){
   setPlaying(false);
   stopMusic();
 
-  if (level.prolog && !pemain.sudahGanti) {   // sampai gerbang tanpa mengambil jas dokter: GAME OVER walau sudah finish
+  if (level.prolog && !pemain.sudahGanti) {   // sampai gerbang tanpa mengambil jaket kuning: GAME OVER walau sudah finish
     level.gagalJas = true;
     bunyiGameOver();
     gameOver();

@@ -35,7 +35,7 @@ function tampilkanPetunjuk(aksiMulai){
   let baris;
   if (level.prolog) {
     baris = [
-      [folder + 'jas.png',    'Jas dokter melayang',      'Lompat dan ambil di tengah prolog. WAJIB: kalau sampai gerbang tanpa mengambilnya, game over.'],
+      [folder + 'jas.png',    'Jaket kuninng melayang',      'Lompat dan ambil di tengah prolog. WAJIB: kalau sampai gerbang tanpa mengambilnya, game over.'],
       [folder + 'buku.png',   'Buku, meja, kertas ujian', 'Lompat dengan  ↑ / Spasi. Banteng bisa menghancurkannya.'],
       [folder + 'big.png',    'Blok besar',               'Lompat dan naiki. Banteng tidak bisa menghancurkannya, ia melompatinya.'],
       [folder + 'banner.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],

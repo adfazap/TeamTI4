@@ -9,13 +9,13 @@
      gantung = true kalau menggantung di atas kepala (harus menunduk)
      kuat    = true kalau TIDAK bisa dihancurkan banteng (banteng menunggu dulu lalu melompatinya) */
 const TYPES = {
-  k1:   { jenis: 'k1',   w: 60,  h: 80,  gambar: 'ob1',  jarak: 450 },                 // peti kecil
+  k1:   { jenis: 'k1',   w: 80,  h: 120,  gambar: 'ob1',  jarak: 450 },                 // peti kecil
   k2:   { jenis: 'k2',   w: 60,  h: 80,  gambar: 'ob2',  jarak: 450 },                 // cone
   p1:   { jenis: 'p1',   w: 60,  h: 80,  gambar: 'p1',   jarak: 450 },                 // benda bertema map (1)
   p2:   { jenis: 'p2',   w: 60,  h: 80,  gambar: 'p2',   jarak: 450 },                 // benda bertema map (2)
   pair: { jenis: 'pair', w: 120, h: 80,  gambar: 'p1', gambar2: 'p2', jarak: 520 },   // dua benda berdempetan
-  tall: { jenis: 'tall', w: 48,  h: 120, gambar: 'tall', jarak: 480 },                 // tinggi & sempit
-  car:  { jenis: 'car',  w: 176, h: 76,  gambar: 'car',  jarak: 600, kuat: true },     // mobil: bisa dinaiki
+  tall: { jenis: 'tall', w: 58,  h: 130, gambar: 'tall', jarak: 480 },                 // tinggi & sempit
+  car:  { jenis: 'car',  w: 112, h: 112,  gambar: 'car',  jarak: 600, kuat: true },     // mobil: bisa dinaiki
   big:  { jenis: 'big',  w: 160, h: 110, gambar: 'big',  jarak: 700, kuat: true },     // blok besar: bisa dinaiki
   hang: { jenis: 'hang', w: 88,  h: 68,  gambar: 'hang', jarak: 450, gantung: true },  // menggantung: harus menunduk
 

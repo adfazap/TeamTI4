@@ -105,4 +105,4 @@ Pengingat "Pencet E": muncul begitu papan info terlihat (SEMBUNYI_JAUH px sebelu
 
 - Koleksi Informasi: tombol #btnKoleksi di home, layar #koleksi/#infoBesar (menu.js bukaKoleksi). Papan yang sudah dibaca (pemain sampai ngumpet di balik objek) dicatat di state.js tandaiInfoDibaca -> localStorage 'promedInfo'; yang belum tampil abu-abu terkunci.
 
-- Prolog: jas dokter melayang (assets/prolog/jas.png, JAS di pengaturan.js, posisiJas/jasMenyentuhPemain di game.js, gambarJasMelayang di render.js). Baju hanya berganti kalau jas diambil; sampai gerbang tanpa jas = game over (finishLevel -> level.gagalJas). Generator: gen_jas.py
+- Prolog: jaket kuning melayang (assets/prolog/jas.png, JAS di pengaturan.js, posisiJas/jasMenyentuhPemain di game.js, gambarJasMelayang di render.js). Baju hanya berganti kalau jas diambil; sampai gerbang tanpa jas = game over (finishLevel -> level.gagalJas). Generator: gen_jas.py
