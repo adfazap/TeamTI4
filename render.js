@@ -10,10 +10,15 @@ function render(){
 
   gambarBackground();
   gambarGerbang();
+  const bersembunyi = pemain.sembunyi && pemain.sudahDiPapan;
   gambarPapanInfo();
+  if (bersembunyi) gambarPemain();            // bersembunyi: pemain digambar DI BELAKANG objek
+  gambarObjekSembunyi();
   gambarSemuaRintangan();
   gambarBanteng();
-  gambarPemain();
+  if (!bersembunyi) gambarPemain();
+  gambarKeteranganSembunyi();
+  gambarPetunjukSembunyi();
   gambarPetunjukAwal();
   gambarHitungMundur();
   gambarEfekLayar();
@@ -53,6 +58,15 @@ function gambarPapanInfo(){
     ctx.fillRect(x + 120, GROUND - 95, 10, 95);
     ctx.fillRect(x + 230, GROUND - 95, 10, 95);
     drawImg(b.gambar, x, GROUND - 95 - 203, 360, 203, '#fff');
+  }
+}
+
+/* ----- objek tempat bersembunyi di dekat tiap papan (assets/mapN/hide_obj.png) ----- */
+function gambarObjekSembunyi(){
+  for (const b of papan) {
+    const x = b.x + OBJEK_SEMBUNYI.x - kameraX();
+    if (x < -200 || x > W + 50) continue;
+    drawImg(b.objek, x, GROUND - OBJEK_SEMBUNYI.h, OBJEK_SEMBUNYI.w, OBJEK_SEMBUNYI.h, '#6a5a7a');
   }
 }
 
@@ -127,16 +141,17 @@ function gambarRintanganHancur(o, x){
 function gambarBanteng(){
   const x = 230 - jarak - 150;
 
-  let aksi = level.aksiBanteng;                // 'run', 'wait' atau 'charge'
-  if (pemain.matiTimer > 0) aksi = 'charge';   // saat menangkap pemain: menyeruduk
+  let aksi = level.aksiBanteng;                // 'run', 'wait', 'charge' atau 'bingung'
+  if (pemain.matiTimer > 0) aksi = (pemain.tTangkap < 0.35) ? 'charge' : 'bangga';   // menangkap: menyeruduk dulu, lalu diam bangga
 
   const frame = level.animBanteng[aksi];
-  const nomor = Math.floor(pemain.waktu * ANIM_BANTENG[aksi].fps) % frame.length;
+  let nomor = Math.floor(pemain.waktu * ANIM_BANTENG[aksi].fps) % frame.length;
+  if (aksi === 'lompat') nomor = Math.min(frame.length - 1, Math.floor(level.lompatU * frame.length));   // gambar sesuai posisi lompatan
   const gambarIni = frame[nomor];
 
   // kalau gambar animasinya tidak ada, pakai chaser.png biasa
   if (!gambarSiap(gambarIni)) {
-    drawImg(level.gambarBanteng, x, GROUND - 100, 150, 100, '#a33');
+    drawImg(level.gambarBanteng, x + 150 - 150 * SKALA_BANTENG, GROUND - 100 * SKALA_BANTENG - level.bantengY, 150 * SKALA_BANTENG, 100 * SKALA_BANTENG, '#a33');
     return;
   }
 
@@ -148,18 +163,57 @@ function gambarBanteng(){
     naik = 4;
   }
 
-  if (aksi === 'charge') {                     // garis kecepatan putih di belakang banteng
+  if (aksi === 'charge' && pemain.matiTimer <= 0 && level.hadap > 0) {   // garis kecepatan putih di belakang banteng
     ctx.fillStyle = 'rgba(255,255,255,0.75)';
     for (let i = 0; i < 3; i++) {
       const gx = x - 10 - ((pemain.waktu * 700 + i * 37) % 60);
       ctx.fillRect(gx, GROUND - 80 + i * 22, 34, 4);
     }
   }
-  drawImg(gambarIni, x, GROUND - 100 - naik, gambarIni.naturalWidth, 100, '#a33');
+  // ukuran gambar sesuai aslinya x SKALA_BANTENG (gambar bingung lebih tinggi karena ada tanda tanya)
+  const lebarB = (gambarIni.naturalWidth || 150) * SKALA_BANTENG;
+  const tinggiB = (gambarIni.naturalHeight || 100) * SKALA_BANTENG;
+  const yBanteng = GROUND - tinggiB - naik - level.bantengY;     // bantengY > 0 = sedang melompati rintangan kuat
+  const xB = x + 150 - lebarB;                                    // sisi kanan (moncong) tetap di tempat yang sama
+
+  if (level.hadap < 0 && pemain.matiTimer <= 0) {          // menghadap kiri (bolak-balik saat bingung): gambar dibalik
+    const tengah = xB + lebarB / 2;
+    ctx.save();
+    ctx.translate(tengah, 0);
+    ctx.scale(-1, 1);
+    drawImg(gambarIni, -lebarB / 2, yBanteng, lebarB, tinggiB, '#a33');
+    ctx.restore();
+  } else {
+    drawImg(gambarIni, xB, yBanteng, lebarB, tinggiB, '#a33');
+  }
 }
 
 /* ----- karakter pemain ----- */
 function gambarPemain(){
+  // ditabrak banteng: animasi caught1..6 (terlempar, mendarat, pusing). 3 gambar terakhir diulang.
+  if (pemain.matiTimer > 0) {
+    const daftar = karakterTertangkap[baju];
+    let n = Math.floor(pemain.tTangkap * TERTANGKAP.fps);
+    if (n >= TERTANGKAP.jumlah) n = TERTANGKAP.jumlah - 3 + (n - TERTANGKAP.jumlah) % 3;
+    const g = daftar[n];
+    if (gambarSiap(g)) {
+      drawImg(g, 240 - PLAYER_H * g.naturalWidth / g.naturalHeight / 2, pemain.y - PLAYER_H,
+              PLAYER_H * g.naturalWidth / g.naturalHeight, PLAYER_H, '#e63946');
+      return;
+    }
+  }
+
+  // bersembunyi di balik objek: gambar siluet gelap (hide1/hide2), atau gambar menunduk kalau belum ada
+  if (pemain.sembunyi && pemain.sudahDiPapan) {
+    const g = karakterSembunyi[baju][Math.floor(pemain.waktu * 2) % GAMBAR_SEMBUNYI];
+    const dasar = gambarSiap(g) ? g : karakterMenunduk[baju];
+    const lebarS = PLAYER_H * (dasar.naturalWidth || 80) / (dasar.naturalHeight || PLAYER_H);
+    ctx.globalAlpha = 0.9;
+    drawImg(dasar, 240 - lebarS / 2, pemain.y - PLAYER_H, lebarS, PLAYER_H, '#334');
+    ctx.globalAlpha = 1;
+    return;
+  }
+
   // pilih kelompok gambar sesuai keadaan
   let daftarFrame;
   if (pemain.tersandung > 0) daftarFrame = HIT;
@@ -180,6 +234,45 @@ function gambarPemain(){
   // saat kebal, karakter berkedip
   const terlihat = (pemain.kebal <= 0) || (Math.floor(pemain.waktu * 12) % 2 === 1);
   if (terlihat) drawImg(gambarIni, 240 - lebar / 2, pemain.y - PLAYER_H, lebar, PLAYER_H, '#e63946');
+}
+
+/* ----- keterangan kecil saat bersembunyi: sisa waktu + cara keluar (papan TIDAK diperbesar) ----- */
+function gambarKeteranganSembunyi(){
+  if (!(pemain.sembunyi && pemain.sudahDiPapan)) return;
+  const b = pemain.papanAktif;
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(W / 2 - 170, 70, 340, 52);
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.fillRect(W / 2 - 150, 108, 300, 6);
+  ctx.fillStyle = '#ffd23c';
+  ctx.fillRect(W / 2 - 150, 108, 300 * Math.max(0, b.sisa) / SEMBUNYI_MAX, 6);
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 16px Nunito, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Bersembunyi · pencet  E  untuk keluar', W / 2, 98);
+  ctx.textAlign = 'left';
+}
+
+/* ----- pengingat "Pencet E" begitu papan info terlihat (berkedip pelan supaya menarik perhatian) ----- */
+function gambarPetunjukSembunyi(){
+  if (!bisaSembunyi()) return;
+  const lebar = Math.min(560, W - 20);
+  const kiri = W / 2 - lebar / 2;
+  ctx.globalAlpha = 0.85 + 0.15 * Math.sin(pemain.waktu * 6);
+  ctx.fillStyle = 'rgba(0,0,0,0.65)';
+  ctx.fillRect(kiri, 66, lebar, 64);
+  ctx.strokeStyle = '#ffd23c';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(kiri, 66, lebar, 64);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd23c';
+  ctx.font = '800 20px Nunito, sans-serif';
+  ctx.fillText('Papan info di depan!', W / 2, 92);
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 17px Nunito, sans-serif';
+  ctx.fillText('Pencet  E  untuk bersembunyi dan membacanya', W / 2, 118);
+  ctx.textAlign = 'left';
+  ctx.globalAlpha = 1;
 }
 
 /* ----- tulisan "Tahan → untuk berlari" di awal level ----- */

@@ -32,7 +32,7 @@ PETA PILIHAN PEMINATAN (PNG transparan)
   lock.png            gembok node FINAL              (saran 256 x 256)
   final.png           gambar node FINAL              (saran 300 x 300)
   start.png           gambar node awal (karakter)    (saran 300 x 300)
-  Gambar tiap map: assets/map1/thumb.png ... assets/map6/thumb.png (saran 300 x 300, tanpa transparansi).
+  Gambar tiap map: assets/map1/thumb.png ... assets/map5/thumb.png (saran 300 x 300, tanpa transparansi).
                    Kalau tidak ada, dipakai bg.jpg map tersebut.
 
 GAME OVER (saat kena pengejar)
@@ -51,3 +51,6 @@ LOADING (sebelum masuk map)
 RINTANGAN KHUSUS PROLOG (di assets/prolog/, bukan di assets/ui/)
   buku.png (60x80)  meja.png (112x68)  kertas.png (60x72)  banner.png (96x72, menggantung dengan tali dari atas)
   debris_buku.png  debris_meja.png  debris_kertas.png  debris_banner.png   = pecahan setelah dihancurkan banteng
+
+btn-hide.png  : tombol "sembunyi" di layar sentuh (muncul dekat papan info), 128x128
+btn-start.png : (opsional) tombol "Mulai" di layar petunjuk sebelum main

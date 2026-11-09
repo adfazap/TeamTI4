@@ -92,8 +92,8 @@ function buatRintangan(folder, prolog, panjangMap){
       gambar2: null,
       pecahan: [ambilPecahan(folder, data.gambar, prolog)],
       hancur: 0,        // 0 = utuh. Kalau > 0 = sudah hancur (angkanya = lama sejak hancur)
-      tertahan: 0,      // lama banteng tertahan di rintangan kuat ini
-      sudahDilewati: false,   // banteng sudah melompati rintangan kuat ini
+      mulaiLompat: false,     // banteng sedang / sudah melompati rintangan kuat ini
+      sudahDilewati: false,   // banteng sudah selesai melompatinya
     };
     if (data.gambar2) {
       obj.gambar2 = ambilGambar(folder, data.gambar2, prolog);

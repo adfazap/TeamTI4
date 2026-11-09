@@ -5,7 +5,7 @@
    (assets/map1/music.mp3, prolog: assets/prolog/music.mp3), otomatis dipakai.
    ===================================================================== */
 
-// Satu lagu untuk tiap level. Urutan: [prolog, map1, map2, ... map6]
+// Satu lagu untuk tiap level. Urutan: [prolog, map1, map2, ... map5]  (map5 = Game, nada ala chiptune)
 //   bpm    = kecepatan lagu         wave   = jenis bunyi
 //   root   = nada dasar             scale  = tangga nada yang dipakai
 //   melody = urutan nada (angka = nomor di scale, -1 = diam), 16 langkah diulang terus
@@ -15,7 +15,6 @@ const MUSIK = [
   { bpm: 90,  wave: 'triangle', root: 52, scale: [0, 2, 3, 5, 7, 8, 10],    melody: [0, -1, 2, -1, 4, -1, 2, -1, 5, -1, 4, -1, 2, -1, 0, -1] },
   { bpm: 110, wave: 'square',   root: 55, scale: [0, 3, 5, 6, 7, 10],       melody: [0, -1, 2, 3, -1, 2, 0, -1, 4, -1, 3, 2, -1, 0, -1, 2] },
   { bpm: 125, wave: 'triangle', root: 64, scale: [0, 2, 4, 7, 9],           melody: [4, 3, 2, 0, 2, 3, 4, 5, 4, 3, 2, 0, 2, 4, 3, -1] },
-  { bpm: 100, wave: 'sine',     root: 55, scale: [0, 2, 3, 5, 7, 8, 11],    melody: [0, 2, 4, -1, 5, 4, 2, -1, 0, 2, 4, 6, 7, 6, 4, -1] },
   { bpm: 125, wave: 'square',   root: 58, scale: [0, 2, 3, 5, 7, 9, 10],    melody: [0, 2, 3, 4, 3, 2, 0, -1, 4, 5, 6, 5, 4, 2, 3, -1] },
 ];
 

@@ -3,6 +3,7 @@
 
    Keyboard:  tahan → (atau D) = lari   |  ↑ / Spasi / W = lompat (tekan lagi di udara = double jump)
               ↓ atau S = menunduk       |  P / Esc = pause   |  F = layar penuh
+              pencet E dekat papan info = sembunyi di balik objek (pencet lagi = keluar)
    Sentuh:    ketuk bagian atas layar = lompat, tahan bagian tengah = lari, tahan bagian bawah = menunduk
    ===================================================================== */
 
@@ -18,9 +19,15 @@ function sedangMenunduk(){
   return tombol.bawah || Array.from(sentuhan.values()).includes('nunduk');
 }
 
+// true kalau sedang ada layar menu (home, peta, pause, dll) di atas game
+function menuTerbuka(){
+  return !!document.querySelector('.screen.show');
+}
+
 function lompat(){
   if (!sedangMain || dijeda) return;
   if (pemain.hitungMundur > 0.6) return;        // belum boleh lompat saat hitung mundur
+  if (pemain.sembunyi) return;                  // sedang bersembunyi
 
   if (pemain.dilantai) {
     pemain.vy = JUMP;                            // lompat pertama
@@ -32,6 +39,9 @@ function lompat(){
 }
 
 addEventListener('keydown', function(e){
+  if (menuTerbuka()) {                          // di menu: Spasi tidak boleh menekan tombol; panah/Enter diurus menu.js
+    if (e.code === 'Space') e.preventDefault();
+  } else {
   if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
     e.preventDefault();
     lompat();
@@ -44,6 +54,13 @@ addEventListener('keydown', function(e){
     e.preventDefault();
     tombol.bawah = true;
   }
+  if (e.code === 'KeyE' && !e.repeat) togolSembunyi();   // pencet E dekat papan info = sembunyi (pencet lagi = keluar)
+  if (e.code === 'Enter') {                                 // Enter saat bermain = pause
+    e.preventDefault();                                     // (cegah Enter ikut menekan tombol Lanjut yang baru muncul)
+    if (!e.repeat) pauseGame();
+  }
+  if (e.code === 'KeyM') $('btnMute').click();              // M = suara nyala/mati
+  }                                                         // (akhir kontrol saat bermain)
   if (e.code === 'KeyF') toggleFullscreen();
   if (e.code === 'KeyP' || e.code === 'Escape') {
     if (dijeda) resumeGame();
@@ -52,6 +69,7 @@ addEventListener('keydown', function(e){
 });
 
 addEventListener('keyup', function(e){
+  if (e.code === 'Space' && menuTerbuka()) e.preventDefault();   // cegah Spasi (lepas) menekan tombol menu
   if (e.code === 'ArrowRight' || e.code === 'KeyD') tombol.kanan = false;
   if (e.code === 'ArrowDown' || e.code === 'KeyS') tombol.bawah = false;
 });
@@ -78,3 +96,7 @@ addEventListener('pointerup', jariDiangkat);
 addEventListener('pointercancel', jariDiangkat);
 
 document.addEventListener('contextmenu', function(e){ e.preventDefault(); });   // matikan menu klik kanan
+
+// tombol layar sentuh "sembunyi" (muncul di dekat papan info): ketuk = sembunyi / keluar
+const tombolSembunyi = $('btnSembunyi');
+tombolSembunyi.addEventListener('pointerdown', function(e){ e.preventDefault(); e.stopPropagation(); togolSembunyi(); });

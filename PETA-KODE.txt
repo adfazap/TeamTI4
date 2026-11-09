@@ -41,3 +41,62 @@ YANG SERING INGIN DIUBAH
 - Nama peminatan / studio    : pengaturan.js  (MAPS)
 - Gambar rintangan / banteng : timpa file PNG di assets/<map>/ dengan nama yang sama
 - Layar loading (teks, lama)   : pengaturan.js  (MIN_MEMUAT, deskripsi tiap peminatan di MAPS, TEKS_PROLOG); animasi: assets/ui/loading-1..8.png
+
+----------------------------------------------------------------
+LIMA PEMINATAN & RINTANGAN TIAP MAP (assets/map1 ... map5)
+----------------------------------------------------------------
+Nama file sama di tiap folder map, isinya beda sesuai tema:
+  ob1 / ob2   rintangan kecil (bisa dihancurkan banteng, ada pecahan debris_ob1/ob2)
+  p1 / p2     rintangan tema (pecahan debris_p1/p2)       tall = tinggi sempit     hang = menggantung (menunduk)
+  car / big   besar, TIDAK bisa dihancurkan, bisa dinaiki
+
+  map1 Digital Advertising : megafon, notifikasi suka, monitor iklan, gamepad, papan reklame, mobil iklan, drone
+  map2 Filmografi          : popcorn, kaleng rol film, clapper, rol film, tripod, dolly kamera, flight case
+  map3 Musik               : snare drum, mikrofon, speaker, synth, gitar/ukulele, bus tur, tumpukan amplifier
+  map4 Fashion & Lifestyle : tumpukan baju, sepatu hak, tas, manekin, gaun, mobil konvertibel, koper
+  map5 Game Development    : ramuan, pedang, joystick, kaset game, mesin arcade, mobil balap, server rack, headset VR
+                             pengejarnya: "bug" ungu (assets/map5/chaser_*.png)
+
+Mau menambah / mengganti peminatan: edit daftar MAPS di pengaturan.js, posisi node di POS,
+lalu siapkan folder assets/mapN/ dengan nama file yang sama seperti map lain.
+
+----------------------------------------------------------------
+FITUR BARU: TERTANGKAP, BANTENG MELOMPAT, SEMBUNYI DI PAPAN
+----------------------------------------------------------------
+Animasi karakter ditabrak banteng : assets/char/<baju>/caught1..6.png  (angka di pengaturan.js: TERTANGKAP)
+Karakter bersembunyi              : assets/char/<baju>/hide1..2.png
+Banteng bingung (tanda tanya)     : assets/<map>/chaser_bingung1..3.png  (ANIM_BANTENG.bingung)
+Tombol sembunyi (layar sentuh)    : assets/ui/btn-hide.png
+
+Banteng melompati blok besar & mobil  : game.js, fungsi bantengMenghancurkanRintangan
+                                        (tinggi/jarak lompat: LOMPAT_TINGGI, LOMPAT_AWAL, LOMPAT_AKHIR di pengaturan.js)
+Sembunyi di papan info                : game.js, fungsi togolSembunyi + urusSembunyi + bantengBingung
+                                        (lama maksimal, jarak minimal, dll: SEMBUNYI_MAX, SEMBUNYI_MIN_JARAK, BINGUNG_SETELAH,
+                                         posisi objek: OBJEK_SEMBUNYI di pengaturan.js)
+Objek tempat sembunyi (beda tiap map) : assets/mapN/hide_obj.png, ukuran 100x80, kecil di KOLONG papan (antara dua tiang)
+                                        (map1 lightbox iklan, map2 flight case, map3 speaker monitor, map4 tas belanja, map5 TV retro)
+                                        Ganti PNG-nya untuk mengubah tampilan; posisi/ukuran: OBJEK_SEMBUNYI di pengaturan.js.
+  Cara main: dekat papan info, PENCET E (HP: ketuk tombol mata). Pemain berlari ke kolong papan dan bersembunyi
+  di balik objek, banteng mondar-mandir bingung. Papan tidak diperbesar (sudah terbaca di layar).
+  Pencet E lagi (atau 5 detik habis) = keluar. Satu papan hanya bisa dipakai sekali.
+  Area di sekitar papan dikosongkan dari rintangan.
+
+----------------------------------------------------------------
+KEYBOARD DI MENU (tanpa mouse)
+----------------------------------------------------------------
+menu.js, bagian "KEYBOARD DI MENU": panah / WASD pindah sorotan, Enter menekan tombol, Esc / Backspace kembali.
+Tombol yang pertama kali tersorot di tiap layar diatur di TOMBOL_UTAMA (menu.js). Cincin kuning = tombol yang tersorot (style.css, body.keyboard).
+Saat bermain: Enter = pause, M = suara, F = layar penuh (kontrol.js).
+
+----------------------------------------------------------------
+PETUNJUK & PENGINGAT DI DALAM GAME
+----------------------------------------------------------------
+Layar petunjuk     : "Sebelum Mulai", muncul SETELAH loading dan SEBELUM hitung mundur (hanya saat masuk map dari peta, tidak saat Ulangi).
+                      Isi: gambar tiap jenis rintangan + cara melewatinya (lompat / double jump / menunduk-slide / sembunyi).
+                      Teks & gambar: menu.js, fungsi tampilkanPetunjuk. Tampilan: section #petunjuk di index.html.
+Pengingat "Pencet E": muncul begitu papan info terlihat (SEMBUNYI_JAUH px sebelum papan) dan berkedip pelan sampai papan terlewati.
+                      Tampilan: render.js, fungsi gambarPetunjukSembunyi.
+
+- Banteng melompati rintangan kuat (mobil/besar) dengan gambar sendiri: assets/<map>/chaser_lompat1-3.png (ANIM_BANTENG.lompat; gambar dipilih sesuai posisi lompatan, level.lompatU). Generator: gen_lompat.py
+
+- Banteng bangga setelah menangkap pemain: assets/<map>/chaser_bangga1-3.png (ANIM_BANTENG.bangga, dipilih di render.js gambarBanteng setelah 0.35 dtk adegan tertangkap). Generator: gen_bangga.py

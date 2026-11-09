@@ -38,7 +38,9 @@ function muat(){
     if (teks) {
       const data = JSON.parse(teks);
       prologSelesai = !!data.prolog;
-      for (const nomor of data.finished) selesai.add(nomor);
+      for (const nomor of data.finished) {
+        if (nomor >= 0 && nomor < MAPS.length) selesai.add(nomor);   // abaikan nomor map yang sudah tidak ada
+      }
     }
   } catch (e) {
     // data rusak: abaikan, mulai dari awal

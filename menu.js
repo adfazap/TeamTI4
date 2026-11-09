@@ -12,6 +12,7 @@ function showScreen(id){
 
   if (id) $(id).classList.add('show');
   if (id === 'welcome') updateContinue();
+  fokusAwal(id);                       // keyboard: sorot tombol utama layar ini
 }
 
 // Layar pesan dengan satu tombol (dipakai saat prolog / map selesai)
@@ -23,13 +24,47 @@ function message(teks, labelTombol, aksi){
   showScreen('done');
 }
 
+/* ===================== LAYAR PETUNJUK (sebelum mulai) ===================== */
+// Ditampilkan setelah loading, sebelum hitung mundur: cara melewati tiap jenis rintangan.
+// aksiMulai = fungsi yang dijalankan saat tombol Mulai ditekan (memulai permainan).
+function tampilkanPetunjuk(aksiMulai){
+  const folder = level.prolog ? 'assets/prolog/' : 'assets/map' + (level.mapIndex + 1) + '/';
+
+  // [gambar, judul, isi]
+  let baris;
+  if (level.prolog) {
+    baris = [
+      [folder + 'buku.png',   'Buku, meja, kertas ujian', 'Lompat dengan  ↑ / Spasi. Banteng bisa menghancurkannya.'],
+      [folder + 'big.png',    'Blok besar',               'Lompat dan naiki. Banteng tidak bisa menghancurkannya, ia melompatinya.'],
+      [folder + 'banner.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],
+    ];
+  } else {
+    baris = [
+      [folder + 'ob1.png',  'Rintangan kecil',            'Lompat dengan  ↑ / Spasi. Banteng bisa menghancurkannya.'],
+      [folder + 'tall.png', 'Rintangan tinggi',           'Double jump: tekan  ↑ / Spasi  lagi saat di udara.'],
+      [folder + 'big.png',  'Blok besar dan mobil',       'Lompat dan naiki. Banteng tidak bisa menghancurkannya, ia melompatinya.'],
+      [folder + 'hang.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],
+      ['assets/ui/btn-hide.png', 'Papan info',            'Pencet  E  di dekat papan untuk bersembunyi di kolongnya dan membaca. Banteng jadi bingung.'],
+    ];
+  }
+
+  let html = '';
+  for (const b of baris) {
+    html += '<li><img src="' + b[0] + '" alt="" onerror="this.style.visibility=\'hidden\'"><span><b>' + b[1] + '</b>' + b[2] + '</span></li>';
+  }
+  $('petunjukIsi').innerHTML = html;
+
+  $('btnMulai').onclick = aksiMulai;
+  showScreen('petunjuk');
+}
+
 /* ===================== LAYAR PILIH PEMINATAN ===================== */
 function openSelect(){
   const semuaSelesai = (selesai.size === MAPS.length);
   const posisi = p => 'left:' + p[0] + '%;top:' + p[1] + '%';
 
   // garis penghubung antar kolom node
-  const kolom = [[START], [POS[0], POS[1]], [POS[2], POS[3]], [POS[4], POS[5]], [FINAL]];
+  const kolom = [[START], [POS[0], POS[1]], [POS[2], POS[3]], [POS[4]], [FINAL]];
   let garis = '';
   for (let k = 0; k < kolom.length - 1; k++) {
     for (const a of kolom[k]) {
@@ -107,12 +142,14 @@ document.addEventListener('fullscreenchange', function(){
 function setPlaying(nilai){
   sedangMain = nilai;
   $('btnPause').style.display = nilai ? 'grid' : 'none';
+  if (!nilai) $('btnSembunyi').style.display = 'none';
   $('hud').style.display = nilai ? '' : 'none';
 }
 
 function pauseGame(){
   if (!sedangMain || dijeda) return;
   dijeda = true;
+  $('btnSembunyi').style.display = 'none';
   stopMusic();
   showScreen('pause');
 }
@@ -192,7 +229,7 @@ let frameHome = 1;
 setInterval(function(){
   if (!$('welcome').classList.contains('show')) return;
   frameHome = frameHome % 8 + 1;
-  $('hero').setAttribute('href', 'assets/char/awal/' + frameHome + '.png');
+  $('hero').setAttribute('href', 'assets/char/' + BAJU_HOME + '/' + frameHome + '.png');
 }, 1000 / FPS);
 
 /* ===================== GAMBAR TAMPILAN (assets/ui/) =====================
@@ -240,6 +277,8 @@ const GAMBAR_TOMBOL = {
   btnAgain: 'btn-again.png',
   btnFS: 'btn-fullscreen.png',
   btnPause: 'btn-pause.png',
+  btnMulai: 'btn-start.png',
+  btnSembunyi: 'btn-hide.png',
   btnOverRetry: 'btn-retry.png',
   btnOverMenu: 'btn-menu.png',
 };
@@ -256,6 +295,7 @@ const GAMBAR_LATAR = {
   done: 'menu-bg.jpg',
   ending: 'menu-bg.jpg',
   gameover: 'gameover-bg.jpg',
+  petunjuk: 'menu-bg.jpg',
 };
 for (const id in GAMBAR_LATAR) muatUI($(id), GAMBAR_LATAR[id], 'latar');
 muatUI(document.querySelector('.panel'), 'panel.png', 'latar-panel');
@@ -300,3 +340,94 @@ function tampilkanMemuat(mapIndex){
   $('memuatTeks').textContent = prolog ? TEKS_PROLOG : MAPS[mapIndex].deskripsi;
   showScreen('memuat');
 }
+
+/* ===================== KEYBOARD DI MENU =====================
+   Semua tombol bisa dipakai tanpa mouse:
+     panah / WASD = pindah sorotan   |   Enter = tekan tombol yang disorot   |   Tab juga bisa
+     Esc / Backspace = kembali (di Cara Bermain & Pilih Peminatan)
+   Saat bermain (tidak ada layar menu): Enter = pause, M = suara.
+   ===================================================================== */
+
+// tombol yang pertama kali disorot di tiap layar (kalau tidak bisa dipakai, diganti tombol pertama yang aktif)
+const TOMBOL_UTAMA = {
+  welcome: 'btnContinue', howto: 'btnBack', pause: 'btnResume',
+  gameover: 'btnOverRetry', done: 'btnNext', ending: 'btnAgain', petunjuk: 'btnMulai',
+};
+
+// tombol yang terlihat & aktif di sebuah layar
+function tombolDiLayar(layar){
+  return Array.from(layar.querySelectorAll('button')).filter(function(t){
+    return !t.disabled && t.offsetParent !== null;
+  });
+}
+
+function fokusAwal(id){
+  if (!id || id === 'memuat') {                 // sedang main / loading: lepas sorotan supaya Spasi/Enter tidak menekan tombol
+    if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+    return;
+  }
+  const layar = $(id);
+  const daftar = tombolDiLayar(layar);
+  let pilihan = null;
+
+  if (id === 'select') {                        // peta: sorot peminatan pertama yang belum selesai, kalau habis FINAL
+    pilihan = daftar.find(function(t){ return t.dataset.map !== undefined && !t.classList.contains('finished'); })
+           || daftar.find(function(t){ return t.id === 'final'; })
+           || daftar[0];
+  } else {
+    pilihan = daftar.find(function(t){ return t.id === TOMBOL_UTAMA[id]; }) || daftar[0];
+  }
+  if (pilihan) pilihan.focus();
+}
+
+// pindah sorotan ke tombol terdekat di arah (dx, dy)
+function pindahFokus(layar, dx, dy){
+  const daftar = tombolDiLayar(layar);
+  if (daftar.length === 0) return;
+  const sekarang = document.activeElement;
+  if (!daftar.includes(sekarang)) { daftar[0].focus(); return; }
+
+  const r = sekarang.getBoundingClientRect();
+  const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  let terbaik = null, skorTerbaik = Infinity;
+  for (const t of daftar) {
+    if (t === sekarang) continue;
+    const q = t.getBoundingClientRect();
+    const x = q.left + q.width / 2 - cx, y = q.top + q.height / 2 - cy;
+    const maju = x * dx + y * dy;               // seberapa jauh ke arah yang dituju
+    if (maju <= 1) continue;                    // bukan di arah itu
+    const samping = (dx !== 0) ? Math.abs(y) : Math.abs(x);
+    const skor = maju + 2 * samping;            // lebih suka yang lurus
+    if (skor < skorTerbaik) { skorTerbaik = skor; terbaik = t; }
+  }
+  if (terbaik) terbaik.focus();
+}
+
+const ARAH_MENU = {
+  ArrowRight: [1, 0], KeyD: [1, 0], ArrowLeft: [-1, 0], KeyA: [-1, 0],
+  ArrowDown: [0, 1], KeyS: [0, 1], ArrowUp: [0, -1], KeyW: [0, -1],
+};
+
+addEventListener('keydown', function(e){
+  document.body.classList.add('keyboard');      // tampilkan tanda sorotan (cincin kuning)
+  const layar = document.querySelector('.screen.show');
+  if (!layar) return;                           // sedang main: ditangani kontrol.js
+
+  if (ARAH_MENU[e.code]) {
+    e.preventDefault();
+    pindahFokus(layar, ARAH_MENU[e.code][0], ARAH_MENU[e.code][1]);
+  } else if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+    if (e.repeat) { e.preventDefault(); return; }     // tahan Enter tidak menekan berkali-kali
+    const aktif = document.activeElement;
+    if (!(aktif && aktif.tagName === 'BUTTON' && layar.contains(aktif) && !aktif.disabled)) {
+      e.preventDefault();                       // belum ada yang disorot: tekan tombol utama layar ini
+      fokusAwal(layar.id);
+      if (document.activeElement && layar.contains(document.activeElement)) document.activeElement.click();
+    }
+  } else if (e.code === 'Escape' || e.code === 'Backspace') {
+    if (layar.id === 'howto') $('btnBack').click();
+    else if (layar.id === 'select') showScreen('welcome');
+    else if (layar.id === 'petunjuk') openSelect();         // batal masuk map
+  }
+});
+addEventListener('pointerdown', function(){ document.body.classList.remove('keyboard'); });

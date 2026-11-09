@@ -8,7 +8,7 @@
    ===================================================================== */
 
 /* ===================== MEMULAI LEVEL ===================== */
-// mapIndex: 0-5 = map peminatan 1-6, -1 = prolog
+// mapIndex: 0-4 = map peminatan 1-5, -1 = prolog
 let terakhirMap = null;     // map yang terakhir dimulai (untuk membedakan 'ulangi' dari masuk baru)
 
 function startLevel(mapIndex){
@@ -34,11 +34,16 @@ function startLevel(mapIndex){
     gerbang: loadImg(folder + 'gate.png'),
     gambarBanteng: loadImg(folder + 'chaser.png'),
     animBanteng: {},          // gambar animasi banteng: run, wait, charge
-    aksiBanteng: 'run',       // sedang apa banteng: 'run' (lari), 'wait' (menunggu), 'charge' (menyeruduk)
+    aksiBanteng: 'run',       // sedang apa banteng: 'run', 'wait' (menunggu), 'charge' (menyeruduk), 'bingung'
+    lompatU: 0,               // posisi dalam lompatan (0..1), dipakai memilih gambar lompat
+    bantengY: 0,              // tinggi banteng di atas tanah (saat melompati rintangan kuat)
+    hadap: 1,                 // arah hadap banteng: 1 = kanan, -1 = kiri (saat bingung bolak-balik)
+    bingung: 0,               // sisa waktu banteng masih bingung setelah pemain keluar dari persembunyian
+    bingungWaktu: 0,          // jam untuk gerakan bolak-balik banteng
   };
   for (const aksi in ANIM_BANTENG) {
     level.animBanteng[aksi] = [];
-    for (let i = 1; i <= ANIM_BANTENG[aksi].jumlah; i++) {
+    for (let i = 1; i <= jumlahFrame(aksi, prolog ? 0 : mapIndex + 1); i++) {
       level.animBanteng[aksi].push(loadImg(folder + 'chaser_' + aksi + i + '.png'));
     }
   }
@@ -60,6 +65,10 @@ function startLevel(mapIndex){
     matiTimer: 0,          // > 0 = sedang adegan ditabrak banteng
     kilat: 0,              // kilatan putih saat ganti baju
     sudahGanti: false,     // sudah ganti baju di prolog?
+    tTangkap: 0,           // lama adegan ditabrak (untuk animasi caught)
+    sembunyi: false,       // sedang bersembunyi di papan info?
+    sudahDiPapan: false,   // sudah sampai di balik papan (siap membaca)?
+    papanAktif: null,      // papan yang sedang dipakai bersembunyi
   };
   jarak = START_GAP;
 
@@ -69,8 +78,15 @@ function startLevel(mapIndex){
   papan = [];
   if (!prolog) {
     for (let i = 1; i <= 3; i++) {
-      papan.push({ x: level.panjang * i / 4 + 200, gambar: loadImg(folder + 'info' + i + '.png') });
+      papan.push({ x: level.panjang * i / 4 + 200, gambar: loadImg(folder + 'info' + i + '.png'),
+                   objek: loadImg(folder + 'hide_obj.png'),   // objek tempat bersembunyi (beda tiap map)
+                   sisa: SEMBUNYI_MAX,     // sisa waktu bersembunyi di papan ini
+                   dipakai: false });      // sudah pernah dipakai bersembunyi? (hanya sekali per papan)
     }
+    // area di sekitar papan dikosongkan dari rintangan supaya papan terbaca dan bisa didatangi
+    rintangan = rintangan.filter(function(o){
+      return !papan.some(function(b){ return o.x + o.w > b.x - SEMBUNYI_JAUH - 40 && o.x < b.x + 440; });
+    });
   }
 
   // ----- tunggu semua gambar siap, baru mulai -----
@@ -83,11 +99,13 @@ function startLevel(mapIndex){
     if (o.gambar2) daftarGambar.push(o.gambar2);
     for (const g of o.pecahan) daftarGambar.push(g);
   }
-  for (const b of papan) daftarGambar.push(b.gambar);
+  for (const b of papan) { daftarGambar.push(b.gambar); daftarGambar.push(b.objek); }
   for (const nama in HITUNG) daftarGambar.push(HITUNG[nama]);
   for (const namaBaju of daftarBaju) {
     for (let i = 1; i <= 12; i++) daftarGambar.push(karakter[namaBaju][i]);
     daftarGambar.push(karakterMenunduk[namaBaju]);
+    for (const g of karakterTertangkap[namaBaju]) daftarGambar.push(g);
+    for (const g of karakterSembunyi[namaBaju]) daftarGambar.push(g);
   }
 
   const levelIni = level;
@@ -96,9 +114,14 @@ function startLevel(mapIndex){
     const sisa = Math.max(0, (ulang ? MIN_MEMUAT_ULANG : MIN_MEMUAT) - (performance.now() - waktuMulai));
     setTimeout(function(){
       if (level !== levelIni) return;   // pemain sudah pindah level, batalkan
-      showScreen(null);                 // tutup layar loading
-      dijeda = false;
-      setPlaying(true);
+      const mulaiMain = function(){
+        if (level !== levelIni) return;
+        showScreen(null);               // tutup layar
+        dijeda = false;
+        setPlaying(true);               // game mulai (hitung mundur 3-2-1)
+      };
+      if (ulang) mulaiMain();           // mengulang map yang sama: langsung main
+      else tampilkanPetunjuk(mulaiMain);   // masuk map: layar petunjuk (lompat / menunduk) dulu
     }, sisa);
   });
 }
@@ -137,6 +160,7 @@ function update(dt){
   // 1. Sedang ditabrak banteng: tunggu sebentar lalu GAME OVER
   if (pemain.matiTimer > 0) {
     pemain.matiTimer -= dt;
+    pemain.tTangkap += dt;
     pemain.waktu += dt;
     if (pemain.matiTimer <= 0) gameOver();
     return;
@@ -152,6 +176,7 @@ function update(dt){
   }
 
   // 3. Permainan berjalan
+  urusSembunyi(dt);
   gerakPemain(dt);
   gerakBanteng(dt);
   kurangiWaktu(dt);
@@ -177,6 +202,12 @@ function gerakPemain(dt){
   pemain.menunduk = sedangMenunduk();
   pemain.sedangLari = sedangLari();
 
+  if (pemain.sembunyi) {                       // sedang bersembunyi: tidak bisa lari / menunduk
+    pemain.menunduk = false;
+    pemain.sedangLari = pemain.sudahDiPapan ? false : true;   // sebelum sampai di papan: berlari ke balik papan
+    return;                                    // (gerakan ke papan diatur di urusSembunyi)
+  }
+
   let kecepatan = 0;
   if (pemain.sedangLari) {
     if (pemain.tersandung > 0) kecepatan = STUMBLE_SPEED * pengali;   // baru menabrak: melambat
@@ -188,6 +219,19 @@ function gerakPemain(dt){
 // Banteng mengejar. Jarak berkurang karena banteng lebih cepat dari "dunia".
 function gerakBanteng(dt){
   const pengali = level.prolog ? 0.75 : 1;
+
+  // pemain bersembunyi di balik papan: banteng bingung, tidak mengejar
+  if (pemain.sembunyi && pemain.sudahDiPapan) {
+    bantengBingung(dt);
+    return;
+  }
+  if (level.bingung > 0) {                      // pemain baru keluar: banteng masih bingung di tempat
+    level.bingung -= dt;
+    level.bingungWaktu += dt;
+    level.hadap = (Math.floor(level.bingungWaktu / 0.35) % 2 === 0) ? 1 : -1;
+    return;                                     // (tidak mengejar; jarak hanya bertambah karena pemain lari)
+  }
+  level.hadap = 1;                              // mengejar lagi: selalu menghadap ke kanan (kalau tidak, bisa tetap terbalik setelah bingung)
 
   // kemarahan banteng turun pelan-pelan kalau pemain tidak menabrak
   pemain.marah = Math.max(0, pemain.marah - RAGE_DECAY * dt);
@@ -265,13 +309,17 @@ function cekTabrakanRintangan(){
   }
 }
 
-// Banteng menghancurkan rintangan yang tersentuh moncongnya.
-// Rintangan "kuat" (blok besar & mobil) tidak bisa hancur: banteng menunggu 0.7 detik lalu melompatinya.
+// Banteng menghancurkan rintangan kecil yang tersentuh moncongnya.
+// Rintangan "kuat" (blok besar & mobil) tidak bisa hancur: banteng MELOMPATINYA dengan lengkungan lompat.
+//   - kalau pemain ada di atas rintangan itu / belum melewatinya (melayang), banteng menunggu di depannya dulu
+//   - kalau pemain tertahan di depan rintangan (di tanah), banteng langsung menangkapnya
 function bantengMenghancurkanRintangan(dt){
   const moncong = pemain.x + 30 - jarak;      // posisi moncong banteng di dunia
+  const bingung = pemain.sembunyi || level.bingung > 0;
 
-  // banteng terlihat menyeruduk kalau dekat, berlari kalau jauh
-  if (jarak < 90) level.aksiBanteng = 'charge';
+  level.bantengY = 0;
+  if (bingung) level.aksiBanteng = 'bingung';
+  else if (jarak < 90) level.aksiBanteng = 'charge';   // dekat = menyeruduk
   else level.aksiBanteng = 'run';
 
   for (const o of rintangan) {
@@ -279,23 +327,114 @@ function bantengMenghancurkanRintangan(dt){
       o.hancur += dt;
       continue;
     }
-    if (moncong < o.x || o.sudahDilewati) continue;
+    if (o.sudahDilewati) continue;
 
     if (!o.kuat) {
-      o.hancur = 0.001;                       // hancur!
-    } else {
-      o.tertahan += dt;
-      jarak = pemain.x + 30 - o.x;            // banteng tertahan di depan rintangan
-      level.aksiBanteng = 'wait';
-      if (o.tertahan > 0.7) o.sudahDilewati = true;
+      if (moncong >= o.x) o.hancur = 0.001;   // hancur!
+      continue;
     }
+
+    // ----- rintangan kuat: dilompati -----
+    if (bingung) continue;                    // lagi bingung: tidak mengurus rintangan kuat
+    const awalLompat = o.x - LOMPAT_AWAL;
+    const akhirLompat = o.x + o.w + LOMPAT_AKHIR;
+    if (moncong < awalLompat) continue;       // masih jauh
+    if (moncong >= akhirLompat) { o.sudahDilewati = true; continue; }
+
+    if (!o.mulaiLompat) {
+      const pemainTertahan = pemain.dilantai && pemain.x < o.x - 30;   // di tanah, di depan rintangan
+      if (pemainTertahan) {
+        continue;                             // pemain tertahan di tanah: banteng terus mendekat dan menangkapnya
+      }
+      o.mulaiLompat = true;                   // selain itu banteng langsung lompat (pemain masih di atas pun tetap dikejar)
+    }
+
+    // lengkung lompat: 0 di awal, setinggi LOMPAT_TINGGI di tengah (agak datar), 0 saat mendarat
+    const u = (moncong - awalLompat) / (akhirLompat - awalLompat);
+    const tinggi = LOMPAT_TINGGI * (1 - Math.pow(2 * u - 1, 4));
+    level.bantengY = Math.max(level.bantengY, tinggi);
+    level.aksiBanteng = 'lompat';
+    level.lompatU = u;                         // 0 = baru lepas landas, 1 = mendarat (untuk memilih gambar lompat)
   }
+}
+
+/* ===================== SEMBUNYI DI PAPAN INFO ===================== */
+// papan info yang sedang cukup dekat untuk dijadikan tempat bersembunyi (atau null)
+function papanDekat(){
+  for (const b of papan) {
+    if (pemain.x >= b.x - SEMBUNYI_JAUH && pemain.x <= b.x + OBJEK_SEMBUNYI.x + OBJEK_SEMBUNYI.w / 2 - 30) return b;
+  }
+  return null;
+}
+
+// apakah pemain boleh mulai bersembunyi sekarang?
+function bisaSembunyi(){
+  if (!level || pemain.hitungMundur > 0.6 || pemain.matiTimer > 0 || pemain.sembunyi) return false;
+  const b = papanDekat();
+  return !!b && !b.dipakai && b.sisa > 0 && pemain.dilantai && pemain.tersandung <= 0 && jarak >= SEMBUNYI_MIN_JARAK;
+}
+
+// Pencet E (atau tombol mata): pemain berlari ke objek di dekat papan lalu bersembunyi di baliknya.
+// Pencet E lagi (atau waktu habis): pemain keluar, banteng masih bingung sebentar.
+function togolSembunyi(){
+  if (!sedangMain || dijeda || !level || pemain.matiTimer > 0) return;
+
+  if (pemain.sembunyi) {                      // sedang bersembunyi / menuju objek: keluar / batal
+    if (pemain.sudahDiPapan) keluarSembunyi();
+    else { pemain.sembunyi = false; pemain.papanAktif = null; }
+    return;
+  }
+  if (bisaSembunyi()) {                       // mulai bersembunyi
+    pemain.sembunyi = true;
+    pemain.sudahDiPapan = false;
+    pemain.papanAktif = papanDekat();
+  }
+}
+
+function keluarSembunyi(){
+  pemain.sembunyi = false;
+  pemain.sudahDiPapan = false;
+  pemain.papanAktif = null;
+  level.bingung = BINGUNG_SETELAH;            // banteng masih bingung sebentar
+}
+
+// dipanggil tiap frame: berlari ke objek, lalu menghitung sisa waktu bersembunyi
+function urusSembunyi(dt){
+  if (!pemain.sembunyi) return;
+  const b = pemain.papanAktif;
+
+  if (!pemain.sudahDiPapan) {
+    // tujuan: pemain tepat di balik objek (pusat badan pemain = pemain.x + 40)
+    const sasaran = b.x + OBJEK_SEMBUNYI.x + OBJEK_SEMBUNYI.w / 2 - 40;
+    geser(Math.min(SPEED * dt, Math.max(0, sasaran - pemain.x)));   // hanya maju, tidak mundur
+    if (sasaran - pemain.x <= 1) {
+      pemain.sudahDiPapan = true;
+      b.dipakai = true;                       // satu papan hanya bisa dipakai sekali
+      level.bingungWaktu = 0;
+    }
+    return;
+  }
+
+  b.sisa -= dt;
+  if (b.sisa <= 0) keluarSembunyi();
+}
+
+// Banteng yang kehilangan pemain: mondar-mandir bolak-balik di dekat papan sambil celingukan.
+function bantengBingung(dt){
+  level.bingungWaktu += dt;
+  const sasaran = 120 + 50 * Math.sin(level.bingungWaktu * 2.6);   // jarak bergoyang antara 70 dan 170
+  const selisih = sasaran - jarak;
+  const langkah = Math.max(-300 * dt, Math.min(300 * dt, selisih));
+  jarak += langkah;
+  if (Math.abs(langkah) > 0.3) level.hadap = (langkah > 0) ? -1 : 1;   // jarak membesar = mundur = menghadap kiri
 }
 
 // Banteng menangkap pemain HANYA kalau badannya benar-benar menyentuh badan pemain.
 // Kalau pemain masih melayang di atas banteng, banteng MENUNGGU di bawahnya sampai pemain turun.
 // Mengembalikan true kalau pemain tertangkap.
 function cekBantengMenangkap(){
+  if (pemain.sembunyi && pemain.sudahDiPapan) return false;   // bersembunyi: tidak bisa ditangkap
+
   // kotak badan banteng (kiri & kanan di layar, bagian atas)
   const bantengKiri = 230 - jarak - 150 + 20;
   const bantengKanan = 230 - jarak - 10;
@@ -308,6 +447,7 @@ function cekBantengMenangkap(){
 
   const sejajar = (bantengKanan > pemainKiri) && (bantengKiri < pemainKanan);
   if (!sejajar) return false;
+  if (level.bantengY > 0 && kakiPemain < GROUND - 40) return false;   // banteng sedang melompat & pemain di atas: lewat saja, tidak menahan
 
   if (bantengAtas < kakiPemain) {      // kaki pemain cukup rendah: badan kena
     caught();
@@ -319,6 +459,7 @@ function cekBantengMenangkap(){
 }
 
 function tampilkanHud(){
+  $('btnSembunyi').style.display = (bisaSembunyi() || pemain.sembunyi) ? 'grid' : 'none';
   const nama = level.prolog ? 'Prolog' : MAPS[level.mapIndex].name;
   const persen = Math.floor(pemain.x / level.panjang * 100);
   $('hud').textContent = nama + '  ' + persen + '%';
@@ -327,7 +468,11 @@ function tampilkanHud(){
 /* ===================== KALAH & MENANG ===================== */
 // dipanggil saat banteng menangkap pemain
 function caught(){
-  pemain.matiTimer = 0.9;      // adegan singkat sebelum layar game over
+  pemain.matiTimer = TERTANGKAP.durasi;   // adegan ditabrak (animasi caught1..6) sebelum layar game over
+  pemain.tTangkap = 0;
+  pemain.sembunyi = false;
+  level.bantengY = 0;                      // banteng mendarat tepat di pemain
+  $('btnSembunyi').style.display = 'none';
   pemain.tersandung = 1;
   stopMusic();
   bunyiGameOver();

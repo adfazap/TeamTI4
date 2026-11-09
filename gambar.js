@@ -64,12 +64,23 @@ function tungguGambar(daftar, setelahSiap){
 const karakter = { awal: [], promed: [] };
 const karakterMenunduk = {};       // gambar saat menunduk (duck.png)
 
+const karakterTertangkap = {};      // animasi saat ditabrak banteng (caught1..6.png)
+const karakterSembunyi = {};       // gambar saat bersembunyi (hide1..2.png)
+
 const daftarBaju = ['awal', 'promed'];
 for (const namaBaju of daftarBaju) {
   for (let nomor = 1; nomor <= 12; nomor++) {
     karakter[namaBaju][nomor] = loadImg('assets/char/' + namaBaju + '/' + nomor + '.png');
   }
   karakterMenunduk[namaBaju] = loadImg('assets/char/' + namaBaju + '/duck.png');
+  karakterTertangkap[namaBaju] = [];
+  for (let nomor = 1; nomor <= TERTANGKAP.jumlah; nomor++) {
+    karakterTertangkap[namaBaju].push(loadImg('assets/char/' + namaBaju + '/caught' + nomor + '.png'));
+  }
+  karakterSembunyi[namaBaju] = [];
+  for (let nomor = 1; nomor <= GAMBAR_SEMBUNYI; nomor++) {
+    karakterSembunyi[namaBaju].push(loadImg('assets/char/' + namaBaju + '/hide' + nomor + '.png'));
+  }
 }
 
 /* ----- gambar angka hitung mundur ----- */
@@ -85,12 +96,12 @@ function muatSemuaGambar(){
   const namaFile = ['bg.jpg', 'bg-panjang.jpg', 'gate.png', 'chaser.png', 'big.png', 'car.png',
                     'ob1.png', 'ob2.png', 'p1.png', 'p2.png', 'tall.png', 'hang.png',
                     'debris_ob1.png', 'debris_ob2.png', 'debris_p1.png', 'debris_p2.png', 'debris_tall.png', 'debris_hang.png',
-                    'info1.png', 'info2.png', 'info3.png'];
-  for (let nomorMap = 0; nomorMap <= 6; nomorMap++) {      // 0 = prolog, 1-6 = map
+                    'info1.png', 'info2.png', 'info3.png', 'hide_obj.png'];
+  for (let nomorMap = 0; nomorMap <= MAPS.length; nomorMap++) {      // 0 = prolog, 1-5 = map
     const folder = (nomorMap === 0) ? 'assets/prolog/' : 'assets/map' + nomorMap + '/';
     for (const nama of namaFile) loadImg(folder + nama);
     for (const aksi in ANIM_BANTENG) {
-      for (let i = 1; i <= ANIM_BANTENG[aksi].jumlah; i++) loadImg(folder + 'chaser_' + aksi + i + '.png');
+      for (let i = 1; i <= jumlahFrame(aksi, nomorMap); i++) loadImg(folder + 'chaser_' + aksi + i + '.png');
     }
   }
 }

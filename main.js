@@ -18,4 +18,5 @@ function loop(waktuSekarang){
 requestAnimationFrame(loop);
 
 updateContinue();                          // atur tombol Lanjutkan sesuai progres tersimpan
+fokusAwal('welcome');                      // keyboard: sorot tombol utama di layar awal
 setTimeout(muatSemuaGambar, 300);          // muat gambar semua map di latar belakang
