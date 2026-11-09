@@ -86,15 +86,15 @@ const PENGALI_JARAK_RINTANGAN = 1.1;   // jarak antar rintangan dikali angka ini
 /* ----- data 5 peminatan (urutan = nomor map) ----- */
 const MAPS = [
   { name: 'KULS', studio: 'KULS Creative', stream: 'Project Manager & Designer',
-    deskripsi: 'Merancang promosi produk, gig media, dan konsep gamifikasi: dari strategi brand sampai kampanye kreatif multiplatform.' },
+    deskripsi: 'Merancang promosi produk, gig media, dan konsep gamifikasi: dari strategi brand sampai kampanye kreatif multiplatform. Studio KULS Creative.' },
   { name: 'ORFIL', studio: 'Orang Film UI', stream: 'Artist & Engineer',
-    deskripsi: 'Memproduksi film, videografi, dan fotografi: manajemen kru, pengoperasian alat, pra-produksi sampai pasca-produksi.' },
+    deskripsi: 'Memproduksi film, videografi, dan fotografi: manajemen kru, pengoperasian alat, pra-produksi sampai pasca-produksi. Studio Orang Film UI.' },
   { name: 'WIRE', studio: 'WIRE Studio', stream: 'Artist, Engineer',
-    deskripsi: 'Menciptakan, mengelola bisnis, dan memasarkan musik: dari produksi dan recording sampai distribusi rilisan.' },
+    deskripsi: 'Menciptakan, mengelola bisnis, dan memasarkan musik: dari produksi dan recording sampai distribusi rilisan. Studio WIRE.' },
   { name: 'FLUI', studio: 'FLUI Media', stream: 'Project Manager & Designer',
-    deskripsi: 'Mengelola produk dan media fashion dan lifestyle: desain, koordinasi talent, jurnalisme, dan pemasaran brand.' },
+    deskripsi: 'Mengelola produk dan media fashion dan lifestyle: desain, koordinasi talent, jurnalisme, dan pemasaran brand. Studio FLUI Media.' },
   { name: 'OXLAB', studio: 'OX-Laboratory', stream: 'Engineer & Artist',
-    deskripsi: 'Membuat game digital: desain, pemrograman, aset visual dan audio, sampai marketing dan publishing.' },
+    deskripsi: 'Membuat game digital: desain, pemrograman, aset visual dan audio, sampai marketing dan publishing. Studio OX-Laboratory.' },
 ];
 
 // ----- layar loading sebelum masuk map (gelap, animasi PNG, teks tipis tentang map) -----

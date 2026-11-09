@@ -53,6 +53,8 @@ button.node:hover{transform:scale(1.1);filter:none}
   background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:1.1em;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.5)}
 .lab{position:absolute;top:calc(100% + 20px);left:50%;transform:translateX(-50%);width:150%;font-weight:600;line-height:1.2;text-shadow:0 2px 6px #000;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lab.atas{top:auto;bottom:calc(100% + 20px)}        /* nama map di baris atas tampil DI ATAS gambar, jadi tidak tertutup map di bawahnya */
+.lab{-webkit-line-clamp:3;width:170%}
 .node.finished .pic{filter:brightness(.5)}
 .node.finished::after,.node.locked::after{content:'✓';position:absolute;inset:0;display:grid;place-items:center;font-size:3.4em;font-weight:800;
   color:var(--accent2);text-shadow:0 0 10px #000,0 0 18px #000}
@@ -65,6 +67,24 @@ button.node:hover{transform:scale(1.1);filter:none}
 .final.locked::after{content:'🔒';font-size:2.4em;color:#fff}
 .final:not(.locked) .pic{animation:denyut 1.4s infinite}
 @keyframes denyut{0%{box-shadow:0 0 0 0 rgba(255,138,61,.8)}100%{box-shadow:0 0 0 18px rgba(255,138,61,0)}}
+
+/* ---- HP landscape (layar pendek): peta pilihan dibuat lebih besar, judul dikecilkan ---- */
+@media (max-height:520px){
+  #select{gap:2px;justify-content:flex-start;padding-top:2vh}
+  #select h2{font-size:clamp(14px,5vh,22px)}
+  #select small{font-size:clamp(9px,3vh,12px)}
+  #cards{width:min(96%,calc(68vh * 2.4));width:min(96%,calc(68dvh * 2.4));margin-top:clamp(18px,7dvh,40px)}
+  .node{font-size:clamp(8px,2.6vh,11px)}
+  .pic{border-width:2px}
+}
+
+/* ---- HP landscape: layar Cara Bermain dipadatkan & tombol tidak menyusut ---- */
+button{flex-shrink:0}
+@media (max-height:520px){
+  #howto{gap:6px;padding-top:2vh;justify-content:flex-start}
+  #howto h2{font-size:clamp(14px,5vh,20px)}
+  #howto .howto{gap:6px;max-width:94vw;font-size:clamp(11px,3.3vh,13px);line-height:1.3}
+}
 
 /* ---- layar penuh sejak awal: game memenuhi seluruh jendela ---- */
 #game{position:fixed;inset:0;background:#000;overflow:hidden}

@@ -85,7 +85,7 @@ function openSelect(){
     const kelas = selesai.has(i) ? 'node finished' : 'node';
     html += '<button class="' + kelas + '" data-map="' + i + '" title="' + MAPS[i].name + '" style="' + posisi(POS[i]) + '">' +
             '<i class="pic" style="background-image:url(assets/map' + (i + 1) + '/thumb.png),url(assets/map' + (i + 1) + '/bg.jpg)"></i>' +
-            '<b class="num">' + (i + 1) + '</b><span class="lab">' + MAPS[i].name + '</span></button>';
+            '<b class="num">' + (i + 1) + '</b><span class="lab' + (POS[i][1] < 50 ? ' atas' : '') + '">' + MAPS[i].name + '</span></button>';
   }
 
   // node FINAL (terkunci sebelum semua map selesai)
