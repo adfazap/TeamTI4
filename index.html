@@ -37,10 +37,12 @@
 </head>
 <body>
 <div id="game">
+  <!-- kanvas tempat game digambar -->
   <canvas id="c" width="960" height="540"></canvas>
   <div id="hud"></div>
   <button id="btnPause" title="Jeda (P)">⏸</button>
   <button id="btnSembunyi" title="Sembunyi di balik objek (E)">👁</button>
+  <!-- tombol layar sentuh (hanya tampil di HP saat bermain) -->
   <div id="kontrolHP">
     <button id="btnLari" title="Lari">➜</button>
     <button id="btnTunduk" title="Menunduk">⬇</button>
@@ -54,36 +56,101 @@
   <section id="welcome" class="screen show">
     <svg class="scene" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice">
       <defs>
-        <linearGradient id="langit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd3ff"/><stop offset="1" stop-color="#e4f4ff"/></linearGradient>
-        <g id="aw"><circle cx="70" cy="60" r="42"/><circle cx="105" cy="40" r="38"/><circle cx="135" cy="62" r="34"/><rect x="28" y="62" width="140" height="40" rx="20"/></g>
-        <pattern id="jendela" width="40" height="60" patternUnits="userSpaceOnUse"><rect x="6" y="8" width="28" height="34" fill="#ffefc0"/></pattern>
-        <pattern id="jendela2" width="44" height="60" patternUnits="userSpaceOnUse"><rect x="8" y="8" width="26" height="32" fill="#f7efc9"/></pattern>
+        <linearGradient id="langit" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#8fd3ff" />
+          <stop offset="1" stop-color="#e4f4ff" />
+        </linearGradient>
+        <g id="aw">
+          <circle cx="70" cy="60" r="42" />
+          <circle cx="105" cy="40" r="38" />
+          <circle cx="135" cy="62" r="34" />
+          <rect x="28" y="62" width="140" height="40" rx="20" />
+        </g>
+        <pattern id="jendela" width="40" height="60" patternUnits="userSpaceOnUse">
+          <rect x="6" y="8" width="28" height="34" fill="#ffefc0" />
+        </pattern>
+        <pattern id="jendela2" width="44" height="60" patternUnits="userSpaceOnUse">
+          <rect x="8" y="8" width="26" height="32" fill="#f7efc9" />
+        </pattern>
       </defs>
-      <rect width="1920" height="1080" fill="url(#langit)"/>
-      <g class="awan" fill="#eaf6ff"><use href="#aw" x="740" y="20"/><use href="#aw" x="1590" y="210"/><use href="#aw" x="150" y="250"/></g>
-      <g fill="#b3cfe4"><rect x="40" y="510" width="150" height="386"/><rect x="420" y="505" width="230" height="391"/><rect x="1035" y="555" width="100" height="341"/><rect x="1185" y="575" width="110" height="321"/><rect x="1615" y="478" width="225" height="418"/></g>
+      <rect width="1920" height="1080" fill="url(#langit)" />
+      <g class="awan" fill="#eaf6ff">
+        <use href="#aw" x="740" y="20" />
+        <use href="#aw" x="1590" y="210" />
+        <use href="#aw" x="150" y="250" />
+      </g>
+      <g fill="#b3cfe4">
+        <rect x="40" y="510" width="150" height="386" />
+        <rect x="420" y="505" width="230" height="391" />
+        <rect x="1035" y="555" width="100" height="341" />
+        <rect x="1185" y="575" width="110" height="321" />
+        <rect x="1615" y="478" width="225" height="418" />
+      </g>
       <!-- menara jam kiri -->
-      <rect x="65" y="337" width="112" height="559" fill="#c4745a"/><polygon points="55,337 121,235 187,337" fill="#4f4560"/><circle cx="113" cy="402" r="32" fill="#faf3e0"/>
-      <rect x="237" y="420" width="120" height="476" fill="#c4745a"/><polygon points="227,420 297,305 367,420" fill="#4f4560"/><circle cx="297" cy="487" r="32" fill="#faf3e0"/>
+      <rect x="65" y="337" width="112" height="559" fill="#c4745a" />
+      <polygon points="55,337 121,235 187,337" fill="#4f4560" />
+      <circle cx="113" cy="402" r="32" fill="#faf3e0" />
+      <rect x="237" y="420" width="120" height="476" fill="#c4745a" />
+      <polygon points="227,420 297,305 367,420" fill="#4f4560" />
+      <circle cx="297" cy="487" r="32" fill="#faf3e0" />
       <!-- menara jam kembar -->
-      <rect x="806" y="435" width="108" height="461" fill="#9aa3b8"/><polygon points="796,435 860,330 924,435" fill="#4f4560"/><circle cx="860" cy="500" r="36" fill="#faf3e0"/><path d="M860 478v22h18" stroke="#3b3a50" stroke-width="5" fill="none"/>
-      <rect x="932" y="435" width="102" height="461" fill="#9aa3b8"/><polygon points="922,435 983,336 1044,435" fill="#4f4560"/><circle cx="983" cy="498" r="34" fill="#faf3e0"/><path d="M983 478v20h16" stroke="#3b3a50" stroke-width="5" fill="none"/>
+      <rect x="806" y="435" width="108" height="461" fill="#9aa3b8" />
+      <polygon points="796,435 860,330 924,435" fill="#4f4560" />
+      <circle cx="860" cy="500" r="36" fill="#faf3e0" />
+      <path d="M860 478v22h18" stroke="#3b3a50" stroke-width="5" fill="none" />
+      <rect x="932" y="435" width="102" height="461" fill="#9aa3b8" />
+      <polygon points="922,435 983,336 1044,435" fill="#4f4560" />
+      <circle cx="983" cy="498" r="34" fill="#faf3e0" />
+      <path d="M983 478v20h16" stroke="#3b3a50" stroke-width="5" fill="none" />
       <!-- pohon -->
-      <rect x="881" y="840" width="24" height="56" fill="#6b4a38"/><g fill="#4a9a5c"><circle cx="892" cy="782" r="55"/><circle cx="845" cy="812" r="42"/><circle cx="940" cy="812" r="42"/></g>
+      <rect x="881" y="840" width="24" height="56" fill="#6b4a38" />
+      <g fill="#4a9a5c">
+        <circle cx="892" cy="782" r="55" />
+        <circle cx="845" cy="812" r="42" />
+        <circle cx="940" cy="812" r="42" />
+      </g>
       <!-- gedung merah -->
-      <rect x="1150" y="652" width="400" height="244" fill="#b2584a"/><rect x="1144" y="636" width="412" height="18" fill="#8c3a30"/><rect x="1180" y="664" width="360" height="190" fill="url(#jendela)"/>
-      <g fill="#d9a39a"><rect x="1178" y="705" width="22" height="191"/><rect x="1243" y="705" width="22" height="191"/><rect x="1308" y="705" width="22" height="191"/><rect x="1373" y="705" width="22" height="191"/></g>
+      <rect x="1150" y="652" width="400" height="244" fill="#b2584a" />
+      <rect x="1144" y="636" width="412" height="18" fill="#8c3a30" />
+      <rect x="1180" y="664" width="360" height="190" fill="url(#jendela)" />
+      <g fill="#d9a39a">
+        <rect x="1178" y="705" width="22" height="191" />
+        <rect x="1243" y="705" width="22" height="191" />
+        <rect x="1308" y="705" width="22" height="191" />
+        <rect x="1373" y="705" width="22" height="191" />
+      </g>
       <!-- gedung krem -->
-      <rect x="1632" y="672" width="300" height="224" fill="#e6d3a6"/><rect x="1632" y="660" width="300" height="14" fill="#a08a68"/><rect x="1650" y="684" width="270" height="190" fill="url(#jendela2)"/>
+      <rect x="1632" y="672" width="300" height="224" fill="#e6d3a6" />
+      <rect x="1632" y="660" width="300" height="14" fill="#a08a68" />
+      <rect x="1650" y="684" width="270" height="190" fill="url(#jendela2)" />
       <!-- jalan -->
       <g id="jalanHome">
-      <rect y="896" width="1920" height="30" fill="#99adc2"/><rect y="926" width="1920" height="154" fill="#5b7f96"/>
-      <g class="jalan" fill="#f4f7fb"><rect x="-114" y="980" width="110" height="14"/><rect x="142" y="980" width="110" height="14"/><rect x="398" y="980" width="110" height="14"/><rect x="654" y="980" width="110" height="14"/><rect x="910" y="980" width="110" height="14"/><rect x="1166" y="980" width="110" height="14"/><rect x="1422" y="980" width="110" height="14"/><rect x="1678" y="980" width="110" height="14"/><rect x="1934" y="980" width="110" height="14"/></g>
+        <rect y="896" width="1920" height="30" fill="#99adc2" />
+        <rect y="926" width="1920" height="154" fill="#5b7f96" />
+        <g class="jalan" fill="#f4f7fb">
+          <rect x="-114" y="980" width="110" height="14" />
+          <rect x="142" y="980" width="110" height="14" />
+          <rect x="398" y="980" width="110" height="14" />
+          <rect x="654" y="980" width="110" height="14" />
+          <rect x="910" y="980" width="110" height="14" />
+          <rect x="1166" y="980" width="110" height="14" />
+          <rect x="1422" y="980" width="110" height="14" />
+          <rect x="1678" y="980" width="110" height="14" />
+          <rect x="1934" y="980" width="110" height="14" />
+        </g>
       </g>
-      <image id="hero" x="1380" y="565" width="264" height="330" href="assets/char/promed/1.png" style="image-rendering:pixelated"/>
+      <image
+        id="hero"
+        x="1380"
+        y="565"
+        width="264"
+        height="330"
+        href="assets/char/promed/1.png"
+        style="image-rendering: pixelated"
+      />
     </svg>
     <div class="hero-text">
-      <!-- Logo Baru yang Dimasukkan -->
+      <!-- Logo baru (Pixelify) -->
       <div class="card-logo-wrap">
         <div class="pixel-logo-container">
           <span class="badge">PENGENALAN PEMINATAN PROMED</span><br>
@@ -93,7 +160,7 @@
         </div>
       </div>
       <div class="panel">
-        <p>Run through the unknown, chase new possibilities, and find your place in the world of ProMed.</p>
+        <p>Berlari, ganti jaket kuning di tengah jalan, lalu pilih peminatan yang mau kamu jelajahi.</p>
         <div class="menu2x2">
           <button id="btnPlay">Main</button><button id="btnContinue">Lanjutkan</button>
           <button id="btnHow">Cara bermain</button><button id="btnKoleksi" class="alt">Koleksi Info</button>
@@ -103,14 +170,15 @@
     </div>
   </section>
 
+  <!-- CARA BERMAIN -->
   <section id="howto" class="screen">
     <h2>Cara Bermain</h2>
     <ul class="howto">
       <li>🏃 <b>Tahan →</b> untuk berlari maju (lepas = berhenti, tidak bisa mundur). <b>Spasi / ↑</b> untuk melompat (tekan lagi di udara = <b>double jump</b>). HP: tombol ➜ (lari), ⬆ (lompat), ⬇ (menunduk) di layar.</li>
       <li>⬇ Rintangan yang <b>menggantung di atas kepala</b>: tahan <b>↓ / S / bagian bawah layar</b> untuk menunduk.</li>
-      <li>🧱 Semua rintangan padat: menabrak = <b>tertahan</b> dan banteng makin dekat. Lompati yang kecil, <b>naiki blok besar &amp; mobil</b> (banteng tidak bisa menghancurkannya, ia melompatinya).</li>
-      <li>🐂 Banteng langsung mengejar begitu hitung mundur selesai. Jangan berhenti terlalu lama atau kamu tertangkap!</li>
-      <li>📋 Di <b>kolong papan info</b> ada <b>objek kecil tempat sembunyi</b>. <b>Pencet E</b> (HP: ketuk tombol mata) untuk berlari ke sana dan membaca papan sambil bersembunyi. Banteng jadi bingung dan mondar-mandir! Maksimal 5 detik, sekali per papan. Pencet E lagi untuk keluar.</li>
+      <li>🧱 Semua rintangan padat: menabrak = <b>tertahan</b> dan musuh makin dekat. Lompati yang kecil, <b>naiki blok besar &amp; mobil</b> (musuh tidak bisa menghancurkannya, ia melompatinya).</li>
+      <li>🦹 Musuh langsung mengejar begitu hitung mundur selesai. Jangan berhenti terlalu lama atau kamu tertangkap!</li>
+      <li>📋 Di <b>kolong papan info</b> ada <b>objek kecil tempat sembunyi</b>. <b>Pencet E</b> (HP: ketuk tombol mata) untuk berlari ke sana dan membaca papan sambil bersembunyi. Musuh jadi bingung dan mondar-mandir! Maksimal 5 detik, sekali per papan. Pencet E lagi untuk keluar.</li>
       <li>🥼 <b>Prolog:</b> lompat dan ambil <b>jaket kuning yang melayang</b> di tengah jalan. Baju baru berganti kalau jas diambil. Sampai gerbang tanpa jas = game over.</li>
       <li>🏁 Selesaikan kelima peminatan untuk membuka FINAL.</li>
       <li>⏸ Tekan <b>P</b>, <b>Enter</b>, atau tombol jeda untuk berhenti sejenak.</li>
@@ -119,13 +187,15 @@
     <button id="btnBack">Kembali</button>
   </section>
 
+  <!-- SEBELUM MULAI (daftar rintangan tiap map; isinya diisi dari menu.js) -->
   <section id="petunjuk" class="screen">
     <h2>Sebelum Mulai</h2>
     <ul id="petunjukIsi" class="howto brief"></ul>
-    <small id="petunjukHP">HP: ketuk bagian atas layar = lompat · tahan bagian tengah = lari · tahan bagian bawah = menunduk</small>
+    <small id="petunjukHP">HP: tombol ➜ (lari), ⬆ (lompat), ⬇ (menunduk) di layar.</small>
     <button id="btnMulai">Mulai</button>
   </section>
 
+  <!-- PILIH PEMINATAN (peta; kartunya dibuat dari menu.js) -->
   <section id="select" class="screen">
     <h2>Pilih Peminatan</h2>
     <small id="progress"></small>
@@ -133,6 +203,7 @@
     <button id="btnSelectHome" class="alt">← Home</button>
   </section>
 
+  <!-- LAYAR LOADING -->
   <section id="memuat" class="screen">
     <img id="memuatGambar" alt="" src="assets/ui/loading-1.png">
     <p id="memuatJudul" class="tipis judul"></p>
@@ -140,6 +211,7 @@
     <small class="tipis">Memuat…</small>
   </section>
 
+  <!-- DIJEDA -->
   <section id="pause" class="screen">
     <h2>Dijeda</h2>
     <button id="btnResume">Lanjut</button>
@@ -147,6 +219,7 @@
     <button id="linkSetelanJeda" class="link">Atur tombol HP</button>
   </section>
 
+  <!-- KOLEKSI INFORMASI (papan info yang sudah dibaca) -->
   <section id="koleksi" class="screen">
     <h2>Koleksi Informasi</h2>
     <small id="koleksiJumlah" class="tipis"></small>
@@ -154,10 +227,12 @@
     <button id="btnKoleksiKembali">Kembali</button>
   </section>
 
+  <!-- pop-up kecil untuk satu kartu koleksi -->
   <div id="popInfo" role="dialog" aria-label="Informasi studio">
     <img id="popInfoGambar" alt="Informasi studio">
   </div>
 
+  <!-- PENGATURAN TOMBOL LAYAR SENTUH -->
   <section id="setelan" class="screen">
     <h2>Tombol Layar Sentuh</h2>
     <div class="setelan">
@@ -170,25 +245,29 @@
     <button id="btnSetKembali">Kembali</button>
   </section>
 
+  <!-- GAME OVER -->
   <section id="gameover" class="screen">
     <img id="overLogo" alt="Game Over">
-  <h1>GAME OVER</h1>
+    <h1>GAME OVER</h1>
     <p id="overPesan">Kamu tertangkap pengejar!</p>
     <small id="overInfo"></small>
     <div class="row"><button id="btnOverRetry">Ulangi</button><button id="btnOverMenu" class="alt">Menu utama</button></div>
   </section>
 
+  <!-- SELESAI SATU MAP -->
   <section id="done" class="screen">
     <h2 id="doneTitle"></h2>
     <button id="btnNext">LANJUT</button>
   </section>
 
+  <!-- ENDING -->
   <section id="ending" class="screen">
     <h1>SELAMAT!</h1>
-    <p>Kamu sudah menyelesaikan semua peminatan Promed.</p>
+    <p>Selamat! Kamu sudah menyelesaikan petualanganmu. Namun, garis akhir di sini bukanlah penutup cerita. Setiap pilihan jalan peminatan yang kamu jelajahi telah membentuk kompas masa depanmu. Peta telah terbentang, bekalmu telah siap. Langkah pertamamu di dunia nyata dimulai sekarang!</p>
     <button id="btnAgain">MAIN LAGI</button>
   </section>
 </div>
+<!-- urutan file JavaScript penting (lihat PETA-KODE.txt) -->
 <script src="pengaturan.js"></script>
 <script src="state.js"></script>
 <script src="gambar.js"></script>
@@ -196,8 +275,15 @@
 <script src="suara.js"></script>
 <script src="kontrol.js"></script>
 <script src="game.js"></script>
+<script src="level.js"></script>
+<script src="musuh.js"></script>
+<script src="sembunyi.js"></script>
+<script src="akhir.js"></script>
 <script src="render.js"></script>
 <script src="menu.js"></script>
+<script src="tombol-menu.js"></script>
+<script src="tampilan-ui.js"></script>
+<script src="keyboard-menu.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

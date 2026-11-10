@@ -1,229 +1,1131 @@
-:root{--kb:clamp(54px,17vh,84px);--opasitas-tombol:.75;--accent:#ff4d6d;--accent2:#ff8a3d;--glass:rgba(14,16,36,.6);--ib:clamp(30px,5vw,42px)}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
-body{background:#05060d;display:flex;justify-content:center;align-items:center;color:#fff;
-  font-family:'Nunito','Segoe UI',system-ui,-apple-system,sans-serif;
-  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:none}
+/* =====================================================================
+   LARI PROMED — style.css
+   Isi file (cari judul bagian pakai Ctrl+F):
+     1. Variabel & dasar
+     2. Area game, HUD, tombol ikon
+     3. Teks & tombol umum
+     4. Layar menu umum
+     5. Home (layar awal)
+     6. Cara bermain & "Sebelum Mulai"
+     7. Peta pilihan peminatan
+     8. Koleksi Informasi
+     9. Layar loading & game over
+    10. Tombol layar sentuh & pengaturannya
+    11. Gambar UI buatan sendiri (assets/ui)
+    12. Sorotan keyboard
+    13. HP landscape / layar pendek
+   Urutan penting: aturan di bawah menimpa aturan di atas yang selektornya sama kuat.
+   ===================================================================== */
 
-/* ---- area game ---- */
-body.pseudofs{position:fixed;inset:0}                 /* cadangan layar penuh untuk iPhone */
-canvas{width:100%;height:100%;display:block}
 
-/* ---- HUD & tombol ikon ---- */
-#hud{position:absolute;top:10px;left:12px;padding:4px 14px;border-radius:999px;font-size:clamp(10px,1.8vw,16px);font-weight:600;
-  background:rgba(0,0,0,.45);backdrop-filter:blur(6px);pointer-events:none}
-#hud:empty{display:none}
-#btnFS,#btnMute,#btnPause,#btnSembunyi{position:absolute;top:10px;right:12px;z-index:5;width:var(--ib);height:var(--ib);padding:0;border-radius:50%;
-  display:grid;place-items:center;font-size:clamp(14px,2.6vw,20px);background:rgba(0,0,0,.45);backdrop-filter:blur(6px);box-shadow:none}
-#btnMute{right:calc(12px + var(--ib) + 8px)}
-
-/* ---- layar menu (kaca buram) ---- */
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,2vw,18px);
-  background:radial-gradient(ellipse at center,rgba(40,26,80,.55),rgba(5,6,15,.9));backdrop-filter:blur(8px);text-align:center;padding:16px}
-.screen.show{display:flex;animation:muncul .35s ease}
-@keyframes muncul{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
-h1{margin:0;font-size:clamp(28px,7vw,64px);font-weight:800;letter-spacing:.08em;
-  background:linear-gradient(90deg,#fff,var(--accent2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 4px 20px rgba(255,77,109,.45))}
-h2{margin:0;font-size:clamp(16px,3.6vw,32px);font-weight:700;white-space:pre-line;line-height:1.35;max-width:85%}
-p{margin:0;max-width:70%;opacity:.85;font-size:clamp(11px,2vw,18px)}
-small{opacity:.6;font-size:clamp(9px,1.5vw,13px)}
-
-/* ---- tombol ---- */
-button{font:inherit;font-weight:700;font-size:clamp(13px,2.3vw,22px);padding:.7em 2.2em;border:0;border-radius:999px;color:#fff;cursor:pointer;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 24px rgba(255,77,109,.4);
-  transition:transform .15s,filter .15s,background .15s,border-color .15s}
-button:hover{transform:translateY(-2px) scale(1.03);filter:brightness(1.08)}
-button:active{transform:scale(.97)}
-
-/* ---- peringatan putar layar (HP tegak) ---- */
-#rotate{display:none;position:absolute;inset:0;z-index:9;background:linear-gradient(160deg,#120d2a,#05060d);align-items:center;justify-content:center;
-  text-align:center;font-weight:600;font-size:clamp(14px,4vw,24px);padding:20px}
-@media (orientation:portrait) and (pointer:coarse){ #rotate{display:flex} }
-
-/* ---- peta pilihan map (seperti Power Pamplona) ---- */
-#cards{position:relative;width:min(92%,calc(60vh * 2.4));width:min(92%,calc(60dvh * 2.4));aspect-ratio:2.4/1}
-#cards svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-#cards line{stroke:rgba(255,138,61,.55);stroke-width:5;stroke-linecap:round;vector-effect:non-scaling-stroke}
-.node{position:absolute;width:11.5%;aspect-ratio:1;margin:-5.75% 0 0 -5.75%;padding:0;border-radius:0;background:none;box-shadow:none;
-  font-size:clamp(8px,1.3vw,12px);transition:transform .15s}
-button.node:hover{transform:scale(1.1);filter:none}
-.pic{position:absolute;inset:0;border-radius:22%;background:#222 center/cover;border:3px solid rgba(255,255,255,.85);box-shadow:0 8px 24px rgba(0,0,0,.55)}
-.num{position:absolute;top:-8px;left:-8px;z-index:2;width:1.9em;height:1.9em;display:grid;place-items:center;border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:1.1em;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.lab{position:absolute;top:calc(100% + 20px);left:50%;transform:translateX(-50%);width:150%;font-weight:600;line-height:1.2;text-shadow:0 2px 6px #000;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.lab.atas{top:auto;bottom:calc(100% + 20px)}        /* nama map di baris atas tampil DI ATAS gambar, jadi tidak tertutup map di bawahnya */
-.lab{-webkit-line-clamp:3;width:170%}
-.node.finished .pic{filter:brightness(.5)}
-.node.finished::after,.node.locked::after{content:'✓';position:absolute;inset:0;display:grid;place-items:center;font-size:3.4em;font-weight:800;
-  color:var(--accent2);text-shadow:0 0 10px #000,0 0 18px #000}
-.start .pic{background:linear-gradient(135deg,#2b1f5c,#6a2c8a);filter:none}
-.start img{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;image-rendering:pixelated}
-.final .pic{background:radial-gradient(circle,#ffb347,#ff4d6d 75%)}
-.trofi{position:absolute;inset:0;display:grid;place-items:center;font-size:3em}
-.final.locked{cursor:not-allowed}
-.final.locked .pic{filter:grayscale(1) brightness(.45)}
-.final.locked::after{content:'🔒';font-size:2.4em;color:#fff}
-.final:not(.locked) .pic{animation:denyut 1.4s infinite}
-@keyframes denyut{0%{box-shadow:0 0 0 0 rgba(255,138,61,.8)}100%{box-shadow:0 0 0 18px rgba(255,138,61,0)}}
-
-/* ---- HP landscape (layar pendek): peta pilihan dibuat lebih besar, judul dikecilkan ---- */
-@media (max-height:520px){
-  #select{gap:2px;justify-content:flex-start;padding-top:2vh}
-  #select h2{font-size:clamp(14px,5vh,22px)}
-  #select small{font-size:clamp(9px,3vh,12px)}
-  #cards{width:min(96%,calc(68vh * 2.4));width:min(96%,calc(68dvh * 2.4));margin-top:clamp(18px,7dvh,40px)}
-  .node{font-size:clamp(8px,2.6vh,11px)}
-  .pic{border-width:2px}
+/* ---------------------------------------------------------------------
+   1. VARIABEL & DASAR
+   --------------------------------------------------------------------- */
+:root {
+  --accent: #ff4d6d;                       /* merah muda utama */
+  --accent2: #ff8a3d;                      /* oranye */
+  --glass: rgba(14, 16, 36, .6);           /* latar tombol kaca */
+  --ib: clamp(30px, 5vw, 42px);            /* ukuran tombol ikon (suara, pause, layar penuh) */
+  --kb: clamp(54px, 17vh, 84px);           /* ukuran tombol layar sentuh */
+  --opasitas-tombol: .75;                  /* transparansi tombol layar sentuh (diatur pemain) */
 }
 
-/* ---- HP landscape: layar Cara Bermain dipadatkan & tombol tidak menyusut ---- */
-button{flex-shrink:0}
-@media (max-height:520px){
-  #howto{gap:6px;padding-top:2vh;justify-content:flex-start}
-  #howto h2{font-size:clamp(14px,5vh,20px)}
-  #howto .howto{gap:6px;max-width:94vw;font-size:clamp(11px,3.3vh,13px);line-height:1.3}
+* {
+  box-sizing: border-box;
 }
 
-/* ---- tombol layar sentuh (Lari / Lompat / Tunduk): hanya muncul di perangkat sentuh saat bermain ---- */
-#kontrolHP{display:none}
-body.sentuh.main-tombol #kontrolHP{display:block}
-#kontrolHP button{position:absolute;bottom:14px;z-index:6;width:var(--kb);height:var(--kb);padding:0;border-radius:50%;display:grid;place-items:center;
-  font-size:calc(var(--kb) * .5);background:var(--glass);border:2px solid rgba(255,255,255,.7);color:#fff;box-shadow:none;
-  opacity:var(--opasitas-tombol);touch-action:none;-webkit-user-select:none;user-select:none}
-#btnLari{left:16px;width:calc(var(--kb) * 1.3) !important;height:calc(var(--kb) * 1.3) !important}
-#btnLompat{right:16px}
-#btnTunduk{right:calc(16px + var(--kb) + 14px)}
-#kontrolHP button.tekan{transform:scale(.9);filter:brightness(1.4)}
-#kontrolHP button.gambar{width:auto !important;height:var(--kb) !important;filter:none}
-#btnLari.gambar{height:calc(var(--kb) * 1.3) !important}
-body.sentuh #btnSembunyi{opacity:var(--opasitas-tombol)}
-/* layar pengaturan */
-.setelan{display:flex;flex-direction:column;gap:12px;max-width:min(86vw,520px);font-weight:600;font-size:clamp(12px,2.6vh,18px)}
-.setelan .baris{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.setelan input[type=range]{flex:1 1 160px;accent-color:var(--accent2)}
-.setelan input[type=checkbox]{width:1.3em;height:1.3em;accent-color:var(--accent2)}
-.contoh{display:flex;align-items:center;gap:10px}
-#contohTombol{position:static;width:var(--kb);height:var(--kb);padding:0;border-radius:50%;background:var(--glass);border:2px solid rgba(255,255,255,.7);
-  color:#fff;box-shadow:none;font-size:calc(var(--kb) * .5);opacity:var(--opasitas-tombol)}
-#contohTombol.gambar{width:auto;height:var(--kb) !important;filter:none}
-
-.panel .row{gap:clamp(6px,1.2vw,12px)}
-.panel .row button{padding:.6em clamp(.9em,1.8vw,1.6em)}
-.panel .row.links{gap:18px}
-
-/* HP landscape: kotak menu di home dipadatkan supaya semua tombol & tautan muat */
-@media (max-height:520px){
-  .panel p{display:none}
-  .panel{gap:6px !important;padding-top:10px !important;padding-bottom:10px !important}
-  .panel button{font-size:clamp(11px,3.6vh,15px)}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
-#btnSelectHome.gambar{height:clamp(34px,9vh,54px) !important}
-#btnSelectHome{position:absolute;top:10px;left:12px;z-index:5;padding:.45em 1.1em;font-size:clamp(11px,2.2vh,16px)}
 
-/* ---- Koleksi Informasi: papan info yang sudah dibaca (abu-abu = belum) ---- */
-#koleksi{gap:clamp(4px,1.4vh,12px)}
-#koleksiIsi{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(6px,1.4vw,14px);width:min(94vw,calc((100vh - 150px) * 2.3));width:min(94vw,calc((100dvh - 150px) * 2.3))}
-.kol{display:flex;flex-direction:column;gap:clamp(4px,1vh,8px);min-width:0}
-.kol h3{margin:0;font-size:clamp(9px,2.2vh,14px);line-height:1.15;text-align:center;font-weight:700;height:3.5em;display:grid;place-items:center;overflow:hidden}
-.kol.lengkap h3::after{content:' ★';color:#ffd23c}
-.kartu{position:relative;width:100%;aspect-ratio:16/9;padding:0;border-radius:8px;border:2px solid rgba(255,255,255,.8);overflow:hidden;box-shadow:none;
-  background:#222 center/cover no-repeat;display:grid;place-items:center;font-size:clamp(9px,2.2vh,14px)}
-.kartu.terkunci{background:#4b4f5c;border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.55);filter:grayscale(1);cursor:not-allowed;font-weight:700}
-.kartu.terkunci:hover{transform:none;filter:grayscale(1)}
-.kartu.terkunci span{font-size:1.9em}
-/* pop-up kecil saat kartu koleksi ditekan (ketuk di mana saja untuk menutup) */
-#popInfo{position:fixed;inset:0;z-index:30;display:none;place-items:center;background:rgba(0,0,0,.45)}
-#popInfo.buka{display:grid}
-#popInfoGambar{width:min(52vw,360px);border-radius:10px;border:3px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.6)}
-/* tombol home: 2 x 2 (Main | Lanjutkan  /  Cara bermain | Koleksi Info) */
-.menu2x2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,1.2vw,12px);width:100%}
-.menu2x2 button{width:100%;padding:.6em .8em}
-.menu2x2 button.gambar{width:auto !important;justify-self:center}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #05060d;
+  color: #fff;
+  font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
 
-/* ---- layar penuh sejak awal: game memenuhi seluruh jendela ---- */
-#game{position:fixed;inset:0;background:#000;overflow:hidden}
-canvas{object-fit:contain}
-#btnPause{right:calc(12px + 2 * (var(--ib) + 8px));display:none}
-#btnSembunyi{top:auto;bottom:calc(var(--kb) * 1.15 + 36px);right:14px;width:calc(var(--ib) * 1.5);height:calc(var(--ib) * 1.5);display:none;touch-action:none;z-index:6;font-size:1.6em}
-button.alt{background:#fff;color:#14213d;box-shadow:0 5px 0 #b9c3d6}
-.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+body.pseudofs {                            /* cadangan layar penuh untuk iPhone */
+  position: fixed;
+  inset: 0;
+}
 
-/* ---- home (ilustrasi kampus) ---- */
-#welcome{background:none;backdrop-filter:none;align-items:flex-start;justify-content:center;text-align:left;gap:0;padding:0 0 0 clamp(16px,6vw,110px)}
-.scene{position:absolute;inset:0;width:100%;height:100%}
-.awan{animation:awan 40s ease-in-out infinite alternate}
-.jalan{animation:jalan 1.6s linear infinite}
-@keyframes awan{to{transform:translateX(120px)}}
-@keyframes jalan{to{transform:translateX(-256px)}}
-.hero-text{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:clamp(4px,1.2vh,12px);max-width:min(48vw,720px)}
-.badge{background:#14213d;color:#fff;font-weight:800;letter-spacing:.14em;font-size:clamp(9px,2vh,16px);padding:.55em 1.3em;border-radius:999px}
-.hero-text h1{display:flex;flex-direction:column;margin:0;background:none;filter:none;letter-spacing:0;
-  font-family:'Lilita One','Baloo 2',Impact,sans-serif;font-weight:400;font-size:clamp(46px,17vh,170px);line-height:.92}
-.hero-text h1 span{-webkit-text-stroke:.07em #14213d;paint-order:stroke fill;text-shadow:0 .06em 0 #14213d}
-.t1{color:#fff}.t2{color:#ff5470}
-.panel{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(8px,1.8vh,16px);padding:clamp(12px,2.6vh,28px);
-  background:rgba(20,33,61,.84);backdrop-filter:blur(6px);border-radius:clamp(14px,2.4vh,26px);box-shadow:0 8px 0 rgba(10,18,40,.55)}
-.panel p{margin:0;max-width:none;opacity:1;text-align:left;font-weight:700;line-height:1.5;font-size:clamp(11px,2.5vh,20px)}
-#btnPlay{background:#ffc93c;color:#14213d;box-shadow:0 5px 0 #c9971b;padding:.6em 1.8em}
-#btnHow{background:#fff;color:#14213d;box-shadow:0 5px 0 #b9c3d6;padding:.6em 1.8em}
-button.link{background:none;box-shadow:none;padding:0;border-radius:0;font-size:clamp(10px,2.2vh,16px);font-weight:800;text-decoration:underline}
-button.link:hover{transform:none}
-.howto{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:clamp(6px,1.6vh,14px);text-align:left;
-  font-weight:700;font-size:clamp(11px,2.6vh,20px);max-width:min(80vw,640px)}
 
-/* ===== GAMBAR UI: aktif otomatis kalau file ada di assets/ui/ (lihat README.txt) ===== */
-button.gambar{background:var(--img) center/100% 100% no-repeat !important;box-shadow:none !important;color:transparent !important;font-size:0 !important;
-  padding:0 !important;border-radius:0 !important;border:0 !important;backdrop-filter:none !important;
-  height:clamp(44px,13vh,120px) !important;width:auto !important;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
-button.gambar:hover{transform:scale(1.06)}
-#btnSembunyi.gambar{height:calc(var(--ib) * 1.5) !important;width:auto}
-#btnFS.gambar,#btnMute.gambar,#btnPause.gambar{height:var(--ib) !important;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4))}
-.screen.latar,#welcome.latar{background:var(--img) center/cover no-repeat;backdrop-filter:none}
-#welcome.latar .scene > :not(#hero):not(#jalanHome){display:none}   /* latar buatan sendiri: sembunyikan gambar kota bawaan, tapi pelari (#hero) dan jalan (#jalanHome) tetap tampil */
-.panel.latar-panel{background:var(--img) center/100% 100% no-repeat;box-shadow:none;backdrop-filter:none;border-radius:0}
-#logo{display:none;height:clamp(90px,36vh,380px);width:auto;max-width:100%}
-#welcome.ada-logo #logo{display:block}
-#welcome.ada-logo h1,#welcome.ada-logo .badge{display:none}
-.ada-frame .pic{border:0;box-shadow:none}
-.ada-frame .node::before{content:'';position:absolute;inset:-8%;background:var(--frame) center/100% 100% no-repeat;z-index:1;pointer-events:none}
-.ada-check .node.finished::after{content:'';font-size:0;background:var(--check) center/60% no-repeat}
-.ada-lock .final.locked::after{content:'';font-size:0;background:var(--lock) center/60% no-repeat}
-.ada-final .final .pic{background:var(--final) center/cover}
-.ada-final .trofi{display:none}
-.ada-start .start .pic{background:var(--start) center/cover}
-.ada-start .start img{display:none}
+/* ---------------------------------------------------------------------
+   2. AREA GAME, HUD, TOMBOL IKON
+   --------------------------------------------------------------------- */
+#game {                                    /* game memenuhi seluruh jendela */
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
 
-/* ---- layar GAME OVER ---- */
-#gameover h1{letter-spacing:.12em;filter:drop-shadow(0 4px 20px rgba(255,40,40,.6))}
-#gameover p{opacity:.9}
-#overLogo{display:none;height:clamp(80px,30vh,300px);width:auto;max-width:90%}
-#gameover.ada-over #overLogo{display:block}
-#gameover.ada-over h1{display:none}
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
-.ada-check .start::after{display:none}
-.start.finished .pic{filter:none}
+#hud {                                     /* tulisan progres di kiri atas */
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(6px);
+  font-size: clamp(10px, 1.8vw, 16px);
+  font-weight: 600;
+  pointer-events: none;
+}
 
-#btnContinue{background:#2fbf6b;color:#fff;box-shadow:0 5px 0 #1e8a4c;padding:.6em 1.8em}
-#btnContinue:disabled{background:#b4bccd;color:#6b7590;box-shadow:0 5px 0 #8790a4;cursor:not-allowed}
-button.gambar:disabled:hover{transform:none}
+#hud:empty {
+  display: none;
+}
 
-/* ---- layar loading: gelap, animasi PNG, teks tipis ---- */
-#memuat{background:#05060d;backdrop-filter:none;gap:clamp(8px,2vh,18px)}
-#memuat.latar{background:var(--img) center/cover no-repeat}
-#memuatGambar{height:clamp(56px,16vh,130px);width:auto;image-rendering:pixelated}
-.tipis{font-weight:300;letter-spacing:.08em;opacity:.7;max-width:min(80vw,620px);line-height:1.7;margin:0;font-size:clamp(11px,2.3vh,17px)}
-#memuat .judul{font-size:clamp(10px,1.9vh,14px);letter-spacing:.32em;text-transform:uppercase;opacity:.55}
+/* tombol bulat kecil di pojok kanan atas: layar penuh, suara, pause, sembunyi */
+#btnFS,
+#btnMute,
+#btnPause,
+#btnSembunyi {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: var(--ib);
+  height: var(--ib);
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(6px);
+  box-shadow: none;
+  font-size: clamp(14px, 2.6vw, 20px);
+}
 
-/* ---- sorotan keyboard (muncul setelah menekan tombol keyboard) ---- */
-body.keyboard button:focus{outline:4px solid #ffd23c;outline-offset:5px}
-body.keyboard button.node:focus{outline:none;transform:scale(1.15);filter:drop-shadow(0 0 4px #ffd23c) drop-shadow(0 0 12px #ffd23c)}
-body.keyboard button.link:focus{outline-offset:3px}
+#btnMute {
+  right: calc(12px + var(--ib) + 8px);
+}
 
-/* ---- layar petunjuk sebelum mulai ---- */
-.brief li{display:flex;align-items:center;gap:clamp(10px,2vw,18px)}
-.brief img{flex:none;width:clamp(34px,9vh,64px);height:clamp(34px,9vh,64px);object-fit:contain;background:rgba(255,255,255,.18);border-radius:10px;padding:4px;image-rendering:pixelated}
-.brief b{display:block}
-#petunjukHP{opacity:.75;max-width:80%}
+#btnPause {
+  right: calc(12px + 2 * (var(--ib) + 8px));
+  display: none;                           /* muncul lewat JavaScript saat bermain */
+}
+
+#btnSembunyi {                             /* tombol "sembunyi" di dekat papan info (kanan bawah) */
+  top: auto;
+  bottom: calc(var(--kb) * 1.15 + 36px);
+  right: 14px;
+  z-index: 6;
+  display: none;
+  width: calc(var(--ib) * 1.5);
+  height: calc(var(--ib) * 1.5);
+  font-size: 1.6em;
+  touch-action: none;
+}
+
+
+/* ---------------------------------------------------------------------
+   3. TEKS & TOMBOL UMUM
+   --------------------------------------------------------------------- */
+h1 {
+  margin: 0;
+  background: linear-gradient(90deg, #fff, var(--accent2), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 4px 20px rgba(255, 77, 109, .45));
+  font-size: clamp(28px, 7vw, 64px);
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+h2 {
+  margin: 0;
+  max-width: 85%;
+  font-size: clamp(16px, 3.6vw, 32px);
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: pre-line;
+}
+
+p {
+  margin: 0;
+  max-width: 70%;
+  opacity: .85;
+  font-size: clamp(11px, 2vw, 18px);
+}
+
+small {
+  opacity: .6;
+  font-size: clamp(9px, 1.5vw, 13px);
+}
+
+.tipis {                                   /* teks kecil & tipis (keterangan) */
+  max-width: min(80vw, 620px);
+  margin: 0;
+  opacity: .7;
+  font-size: clamp(11px, 2.3vh, 17px);
+  font-weight: 300;
+  letter-spacing: .08em;
+  line-height: 1.7;
+}
+
+button {
+  flex-shrink: 0;                          /* tombol tidak boleh menyusut di layar pendek */
+  padding: .7em 2.2em;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  box-shadow: 0 8px 24px rgba(255, 77, 109, .4);
+  color: #fff;
+  font: inherit;
+  font-size: clamp(13px, 2.3vw, 22px);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, filter .15s, background .15s, border-color .15s;
+}
+
+button:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.08);
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+button.alt {                               /* tombol putih (pilihan kedua) */
+  background: #fff;
+  box-shadow: 0 5px 0 #b9c3d6;
+  color: #14213d;
+}
+
+button.link {                              /* tombol yang tampil seperti tautan */
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-size: clamp(10px, 2.2vh, 16px);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+button.link:hover {
+  transform: none;
+}
+
+.row {                                     /* beberapa tombol sebaris */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. LAYAR MENU UMUM
+   --------------------------------------------------------------------- */
+.screen {                                  /* semua layar menu: kaca buram di atas game */
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 18px);
+  padding: 16px;
+  background: radial-gradient(ellipse at center, rgba(40, 26, 80, .55), rgba(5, 6, 15, .9));
+  backdrop-filter: blur(8px);
+  text-align: center;
+}
+
+.screen.show {
+  display: flex;
+  animation: muncul .35s ease;
+}
+
+@keyframes muncul {
+  from { opacity: 0; transform: scale(1.03); }
+  to   { opacity: 1; transform: none; }
+}
+
+#rotate {                                  /* peringatan "putar layar" untuk HP tegak */
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(160deg, #120d2a, #05060d);
+  text-align: center;
+  font-size: clamp(14px, 4vw, 24px);
+  font-weight: 600;
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate { display: flex; }
+}
+
+
+/* ---------------------------------------------------------------------
+   5. HOME (LAYAR AWAL)
+   --------------------------------------------------------------------- */
+#welcome {
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  padding: 0 0 0 clamp(16px, 6vw, 110px);
+  background: none;
+  backdrop-filter: none;
+  text-align: left;
+}
+
+/* --- ilustrasi kampus (SVG) --- */
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.awan  { animation: awan 40s ease-in-out infinite alternate; }
+.jalan { animation: jalan 1.6s linear infinite; }
+
+@keyframes awan  { to { transform: translateX(120px); } }
+@keyframes jalan { to { transform: translateX(-256px); } }
+
+/* --- judul --- */
+.hero-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(4px, 1.2vh, 12px);
+  max-width: min(48vw, 720px);
+}
+
+.hero-text h1 {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  background: none;
+  filter: none;
+  font-family: 'Lilita One', 'Baloo 2', Impact, sans-serif;
+  font-size: clamp(46px, 17vh, 170px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .92;
+}
+
+.hero-text h1 span {
+  -webkit-text-stroke: .07em #14213d;
+  paint-order: stroke fill;
+  text-shadow: 0 .06em 0 #14213d;
+}
+
+.t1 { color: #fff; }
+.t2 { color: #ff5470; }
+
+.badge {
+  padding: .55em 1.3em;
+  border-radius: 999px;
+  background: #14213d;
+  color: #fff;
+  font-size: clamp(9px, 2vh, 16px);
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+#logo {                                    /* logo buatan sendiri (kalau ada assets/ui/logo.png) */
+  display: none;
+  width: auto;
+  max-width: 100%;
+  height: clamp(90px, 36vh, 380px);
+}
+
+#welcome.ada-logo #logo { display: block; }
+
+#welcome.ada-logo h1,
+#welcome.ada-logo .badge {
+  display: none;
+}
+
+/* --- kotak menu: Main | Lanjutkan / Cara bermain | Koleksi Info --- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(8px, 1.8vh, 16px);
+  padding: clamp(12px, 2.6vh, 28px);
+  border-radius: clamp(14px, 2.4vh, 26px);
+  background: rgba(20, 33, 61, .84);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 0 rgba(10, 18, 40, .55);
+}
+
+.panel p {
+  max-width: none;
+  margin: 0;
+  opacity: 1;
+  font-size: clamp(11px, 2.5vh, 20px);
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.panel .row {
+  gap: clamp(6px, 1.2vw, 12px);
+}
+
+.panel .row button {
+  padding: .6em clamp(.9em, 1.8vw, 1.6em);
+}
+
+.panel .row.links {                        /* "Layar penuh" & "Atur tombol HP" */
+  gap: 18px;
+}
+
+.menu2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(6px, 1.2vw, 12px);
+  width: 100%;
+}
+
+.menu2x2 button {
+  width: 100%;
+  padding: .6em .8em;
+}
+
+.menu2x2 button.gambar {
+  justify-self: center;
+  width: auto !important;
+}
+
+#btnPlay {
+  padding: .6em 1.8em;
+  background: #ffc93c;
+  box-shadow: 0 5px 0 #c9971b;
+  color: #14213d;
+}
+
+#btnHow {
+  padding: .6em 1.8em;
+  background: #fff;
+  box-shadow: 0 5px 0 #b9c3d6;
+  color: #14213d;
+}
+
+#btnContinue {
+  padding: .6em 1.8em;
+  background: #2fbf6b;
+  box-shadow: 0 5px 0 #1e8a4c;
+  color: #fff;
+}
+
+#btnContinue:disabled {                    /* belum ada progres tersimpan */
+  background: #b4bccd;
+  box-shadow: 0 5px 0 #8790a4;
+  color: #6b7590;
+  cursor: not-allowed;
+}
+
+/* "Atur tombol HP" hanya tampil di perangkat sentuh (HP/tablet) */
+#linkSetelan,
+#linkSetelanJeda {
+  display: none;
+}
+
+body.sentuh #linkSetelan,
+body.sentuh #linkSetelanJeda {
+  display: inline-block;
+}
+
+
+/* ---------------------------------------------------------------------
+   6. CARA BERMAIN & "SEBELUM MULAI"
+   --------------------------------------------------------------------- */
+.howto {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1.6vh, 14px);
+  max-width: min(80vw, 640px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: clamp(11px, 2.6vh, 20px);
+  font-weight: 700;
+  text-align: left;
+}
+
+.brief li {                                /* daftar petunjuk: gambar + keterangan */
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.brief img {
+  flex: none;
+  width: clamp(34px, 9vh, 64px);
+  height: clamp(34px, 9vh, 64px);
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .18);
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.brief b {
+  display: block;
+}
+
+#petunjukHP {
+  max-width: 80%;
+  opacity: .75;
+}
+
+
+/* ---------------------------------------------------------------------
+   7. PETA PILIHAN PEMINATAN
+   --------------------------------------------------------------------- */
+#cards {
+  position: relative;
+  width: min(92%, calc(60vh * 2.4));
+  width: min(92%, calc(60dvh * 2.4));
+  aspect-ratio: 2.4 / 1;
+}
+
+#cards svg {                               /* garis penghubung antar map */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+#cards line {
+  stroke: rgba(255, 138, 61, .55);
+  stroke-width: 5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.node {                                    /* satu map di peta */
+  position: absolute;
+  width: 11.5%;
+  aspect-ratio: 1;
+  margin: -5.75% 0 0 -5.75%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font-size: clamp(8px, 1.3vw, 12px);
+  transition: transform .15s;
+}
+
+button.node:hover {
+  transform: scale(1.1);
+  filter: none;
+}
+
+.pic {                                     /* gambar thumbnail map */
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(255, 255, 255, .85);
+  border-radius: 22%;
+  background: #222 center / cover;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .55);
+}
+
+.num {                                     /* lencana nomor map */
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 1.9em;
+  height: 1.9em;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+  font-size: 1.1em;
+  font-weight: 800;
+}
+
+.lab {                                     /* nama map: di BAWAH gambar (maks 3 baris) */
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  width: 170%;
+  overflow: hidden;
+  text-shadow: 0 2px 6px #000;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.lab.atas {                                /* map di baris atas: nama di ATAS gambar supaya tidak tertutup map di bawahnya */
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+/* map yang sudah selesai */
+.node.finished .pic {
+  filter: brightness(.5);
+}
+
+.node.finished::after,
+.node.locked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--accent2);
+  text-shadow: 0 0 10px #000, 0 0 18px #000;
+  font-size: 3.4em;
+  font-weight: 800;
+}
+
+/* titik START */
+.start .pic {
+  background: linear-gradient(135deg, #2b1f5c, #6a2c8a);
+  filter: none;
+}
+
+.start img {
+  position: absolute;
+  inset: 6%;
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.start.finished .pic {
+  filter: none;
+}
+
+/* titik FINAL (terkunci sampai kelima map selesai) */
+.final .pic {
+  background: radial-gradient(circle, #ffb347, #ff4d6d 75%);
+}
+
+.trofi {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 3em;
+}
+
+.final.locked {
+  cursor: not-allowed;
+}
+
+.final.locked .pic {
+  filter: grayscale(1) brightness(.45);
+}
+
+.final.locked::after {
+  content: '🔒';
+  color: #fff;
+  font-size: 2.4em;
+}
+
+.final:not(.locked) .pic {
+  animation: denyut 1.4s infinite;
+}
+
+@keyframes denyut {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 138, 61, .8); }
+  100% { box-shadow: 0 0 0 18px rgba(255, 138, 61, 0); }
+}
+
+#btnSelectHome {                           /* tombol "< Home" di pojok kiri atas */
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  z-index: 5;
+  padding: .45em 1.1em;
+  font-size: clamp(11px, 2.2vh, 16px);
+}
+
+
+/* ---------------------------------------------------------------------
+   8. KOLEKSI INFORMASI (abu-abu = belum dibaca)
+   --------------------------------------------------------------------- */
+#koleksi {
+  gap: clamp(4px, 1.4vh, 12px);
+}
+
+#koleksiIsi {                              /* 5 kolom, satu kolom per studio */
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(6px, 1.4vw, 14px);
+  width: min(94vw, calc((100vh - 150px) * 2.3));
+  width: min(94vw, calc((100dvh - 150px) * 2.3));
+}
+
+.kol {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4px, 1vh, 8px);
+  min-width: 0;
+}
+
+.kol h3 {                                  /* nama studio di atas kolom */
+  display: grid;
+  place-items: center;
+  height: 3.5em;
+  margin: 0;
+  overflow: hidden;
+  font-size: clamp(9px, 2.2vh, 14px);
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.kol.lengkap h3::after {                   /* bintang kalau ketiga infonya sudah dibaca */
+  content: ' ★';
+  color: #ffd23c;
+}
+
+.kartu {                                   /* satu kartu info */
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, .8);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #222 center / cover no-repeat;
+  box-shadow: none;
+  font-size: clamp(9px, 2.2vh, 14px);
+}
+
+.kartu.terkunci {                          /* belum dibaca: abu-abu */
+  border-color: rgba(255, 255, 255, .25);
+  background: #4b4f5c;
+  color: rgba(255, 255, 255, .55);
+  filter: grayscale(1);
+  font-weight: 700;
+  cursor: not-allowed;
+}
+
+.kartu.terkunci:hover {
+  transform: none;
+  filter: grayscale(1);
+}
+
+.kartu.terkunci span {
+  font-size: 1.9em;
+}
+
+#popInfo {                                 /* pop-up kecil saat kartu ditekan (ketuk di mana saja untuk menutup) */
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  place-items: center;
+  background: rgba(0, 0, 0, .45);
+}
+
+#popInfo.buka {
+  display: grid;
+}
+
+#popInfoGambar {
+  width: min(52vw, 360px);
+  border: 3px solid #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .6);
+}
+
+
+/* ---------------------------------------------------------------------
+   9. LAYAR LOADING & GAME OVER
+   --------------------------------------------------------------------- */
+#memuat {
+  gap: clamp(8px, 2vh, 18px);
+  background: #05060d;
+  backdrop-filter: none;
+}
+
+#memuat.latar {
+  background: var(--img) center / cover no-repeat;
+}
+
+#memuatGambar {
+  width: auto;
+  height: clamp(56px, 16vh, 130px);
+  image-rendering: pixelated;
+}
+
+#memuat .judul {
+  opacity: .55;
+  font-size: clamp(10px, 1.9vh, 14px);
+  letter-spacing: .32em;
+  text-transform: uppercase;
+}
+
+#gameover h1 {
+  filter: drop-shadow(0 4px 20px rgba(255, 40, 40, .6));
+  letter-spacing: .12em;
+}
+
+#gameover p {
+  opacity: .9;
+}
+
+#overLogo {                                /* tulisan GAME OVER buatan sendiri (assets/ui/gameover.png) */
+  display: none;
+  width: auto;
+  max-width: 90%;
+  height: clamp(80px, 30vh, 300px);
+}
+
+#gameover.ada-over #overLogo { display: block; }
+#gameover.ada-over h1        { display: none; }
+
+
+/* ---------------------------------------------------------------------
+   10. TOMBOL LAYAR SENTUH (LARI / LOMPAT / TUNDUK) & PENGATURANNYA
+   --------------------------------------------------------------------- */
+#kontrolHP {                               /* hanya tampil di HP/tablet saat bermain */
+  display: none;
+}
+
+body.sentuh.main-tombol #kontrolHP {
+  display: block;
+}
+
+#kontrolHP button {
+  position: absolute;
+  bottom: 14px;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: var(--kb);
+  height: var(--kb);
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, .7);
+  border-radius: 50%;
+  background: var(--glass);
+  box-shadow: none;
+  color: #fff;
+  font-size: calc(var(--kb) * .5);
+  opacity: var(--opasitas-tombol);
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+#kontrolHP button.tekan {                  /* efek saat ditekan */
+  transform: scale(.9);
+  filter: brightness(1.4);
+}
+
+#btnLari {                                 /* kiri bawah, lebih besar */
+  left: 16px;
+  width: calc(var(--kb) * 1.3) !important;
+  height: calc(var(--kb) * 1.3) !important;
+}
+
+#btnLompat {                               /* kanan bawah */
+  right: 16px;
+}
+
+#btnTunduk {                               /* di kiri tombol lompat */
+  right: calc(16px + var(--kb) + 14px);
+}
+
+body.sentuh #btnSembunyi {
+  opacity: var(--opasitas-tombol);
+}
+
+/* --- layar pengaturan tombol --- */
+.setelan {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: min(86vw, 520px);
+  font-size: clamp(12px, 2.6vh, 18px);
+  font-weight: 600;
+}
+
+.setelan .baris {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.setelan input[type=range] {
+  flex: 1 1 160px;
+  accent-color: var(--accent2);
+}
+
+.setelan input[type=checkbox] {
+  width: 1.3em;
+  height: 1.3em;
+  accent-color: var(--accent2);
+}
+
+.contoh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#contohTombol {                            /* contoh tombol (ikut transparansi) */
+  position: static;
+  width: var(--kb);
+  height: var(--kb);
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, .7);
+  border-radius: 50%;
+  background: var(--glass);
+  box-shadow: none;
+  color: #fff;
+  font-size: calc(var(--kb) * .5);
+  opacity: var(--opasitas-tombol);
+}
+
+
+/* ---------------------------------------------------------------------
+   11. GAMBAR UI BUATAN SENDIRI
+   Aktif otomatis kalau filenya ada di assets/ui/ (lihat README.txt di folder itu)
+   --------------------------------------------------------------------- */
+button.gambar {                            /* tombol berubah jadi gambar PNG */
+  width: auto !important;
+  height: clamp(44px, 13vh, 120px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--img) center / 100% 100% no-repeat !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
+  font-size: 0 !important;
+}
+
+button.gambar:hover {
+  transform: scale(1.06);
+}
+
+button.gambar:disabled:hover {
+  transform: none;
+}
+
+#btnSembunyi.gambar {
+  width: auto;
+  height: calc(var(--ib) * 1.5) !important;
+}
+
+#btnFS.gambar,
+#btnMute.gambar,
+#btnPause.gambar {
+  height: var(--ib) !important;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, .4));
+}
+
+#btnSelectHome.gambar {
+  height: clamp(34px, 9vh, 54px) !important;
+}
+
+#kontrolHP button.gambar {
+  width: auto !important;
+  height: var(--kb) !important;
+  filter: none;
+}
+
+#btnLari.gambar {
+  height: calc(var(--kb) * 1.3) !important;
+}
+
+#contohTombol.gambar {
+  width: auto;
+  height: var(--kb) !important;
+  filter: none;
+}
+
+/* latar layar */
+.screen.latar,
+#welcome.latar {
+  background: var(--img) center / cover no-repeat;
+  backdrop-filter: none;
+}
+
+/* latar buatan sendiri: sembunyikan gambar kota bawaan, tapi pelari (#hero) dan jalan (#jalanHome) tetap tampil */
+#welcome.latar .scene > :not(#hero):not(#jalanHome) {
+  display: none;
+}
+
+.panel.latar-panel {
+  border-radius: 0;
+  background: var(--img) center / 100% 100% no-repeat;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+/* bingkai, centang, gembok, dan ikon di peta pilihan */
+.ada-frame .pic {
+  border: 0;
+  box-shadow: none;
+}
+
+.ada-frame .node::before {
+  content: '';
+  position: absolute;
+  inset: -8%;
+  z-index: 1;
+  background: var(--frame) center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.ada-check .node.finished::after {
+  content: '';
+  background: var(--check) center / 60% no-repeat;
+  font-size: 0;
+}
+
+.ada-check .start::after {
+  display: none;
+}
+
+.ada-lock .final.locked::after {
+  content: '';
+  background: var(--lock) center / 60% no-repeat;
+  font-size: 0;
+}
+
+.ada-final .final .pic {
+  background: var(--final) center / cover;
+}
+
+.ada-final .trofi {
+  display: none;
+}
+
+.ada-start .start .pic {
+  background: var(--start) center / cover;
+}
+
+.ada-start .start img {
+  display: none;
+}
+
+
+/* ---------------------------------------------------------------------
+   12. SOROTAN KEYBOARD (muncul setelah menekan tombol keyboard)
+   --------------------------------------------------------------------- */
+body.keyboard button:focus {
+  outline: 4px solid #ffd23c;
+  outline-offset: 5px;
+}
+
+body.keyboard button.node:focus {
+  outline: none;
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 4px #ffd23c) drop-shadow(0 0 12px #ffd23c);
+}
+
+body.keyboard button.link:focus {
+  outline-offset: 3px;
+}
+
+
+/* ---------------------------------------------------------------------
+   13. HP LANDSCAPE / LAYAR PENDEK (tinggi <= 520px)
+   Semua penyesuaian layar kecil dikumpulkan di sini.
+   --------------------------------------------------------------------- */
+@media (max-height: 520px) {
+
+  /* home: kotak menu dipadatkan supaya semua tombol & tautan muat */
+  .panel p {
+    display: none;
+  }
+
+  .panel {
+    gap: 6px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .panel button:not(.link) {
+    font-size: clamp(11px, 3.6vh, 15px);
+  }
+
+  /* peta pilihan dibuat lebih besar, judul dikecilkan */
+  #select {
+    justify-content: flex-start;
+    gap: 2px;
+    padding-top: 2vh;
+  }
+
+  #select h2 {
+    font-size: clamp(14px, 5vh, 22px);
+  }
+
+  #select small {
+    font-size: clamp(9px, 3vh, 12px);
+  }
+
+  #cards {
+    width: min(96%, calc(68vh * 2.4));
+    width: min(96%, calc(68dvh * 2.4));
+    margin-top: clamp(18px, 7dvh, 40px);
+  }
+
+  .node {
+    font-size: clamp(8px, 2.6vh, 11px);
+  }
+
+  .pic {
+    border-width: 2px;
+  }
+
+  /* cara bermain dipadatkan */
+  #howto {
+    justify-content: flex-start;
+    gap: 6px;
+    padding-top: 2vh;
+  }
+
+  #howto h2 {
+    font-size: clamp(14px, 5vh, 20px);
+  }
+
+  #howto .howto {
+    max-width: 94vw;
+    gap: 6px;
+    font-size: clamp(11px, 3.3vh, 13px);
+    line-height: 1.3;
+  }
+}

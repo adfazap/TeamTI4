@@ -8,15 +8,22 @@ FILE                 ISINYA
 index.html           kerangka halaman: semua layar menu (home, pilih peminatan, pause, dst)
 style.css            tampilan menu (warna, ukuran, tombol)
 
-pengaturan.js        SEMUA ANGKA YANG BOLEH DIUBAH: kecepatan, lompat, banteng, panjang map, data peminatan
+pengaturan.js        SEMUA ANGKA YANG BOLEH DIUBAH: kecepatan, lompat, musuh, panjang map, data peminatan
 state.js             variabel yang dipakai bersama + simpan/muat progres (localStorage)
 gambar.js            memuat gambar PNG & menggambarnya
 rintangan.js         jenis-jenis rintangan & cara membuat rintangan di sepanjang map
 suara.js             musik latar & efek suara (dibuat browser, tanpa file mp3)
 kontrol.js           keyboard & layar sentuh
-game.js              ISI PERMAINAN: mulai level, gerak, tabrakan, banteng, menang/kalah
+game.js              ISI PERMAINAN tiap frame: update, gerak pemain, lompat, tabrakan rintangan, jas prolog, HUD
+level.js             startLevel: menyiapkan satu level (pemain, musuh, rintangan, papan info)
+musuh.js             perilaku musuh: gerak, melompati rintangan, bingung, menangkap pemain
+sembunyi.js          sembunyi di balik objek papan info (tombol E)
+akhir.js             kalah (game over) & menang (finish)
 render.js            menggambar semuanya ke layar tiap frame
-menu.js              pindah layar, tombol-tombol, peta pilih peminatan, pause, gambar UI
+menu.js              pindah layar, petunjuk sebelum mulai, peta pilih peminatan, layar penuh, pause
+tombol-menu.js       fungsi semua tombol di menu + karakter berlari di home
+tampilan-ui.js       gambar UI buatan sendiri (assets/ui) & layar loading
+keyboard-menu.js     menu bisa dipakai lewat keyboard
 main.js              memulai loop permainan (paling akhir)
 
 assets/              semua gambar (karakter, tiap map, UI). Daftar gambar UI: assets/ui/README.txt
@@ -24,10 +31,10 @@ assets/              semua gambar (karakter, tiap map, UI). Daftar gambar UI: as
 ALUR PERMAINAN SINGKAT
 ----------------------
 1. Klik "Main"            -> menu.js memanggil startLevel(-1)  (-1 = prolog)
-2. startLevel (game.js)   -> menyiapkan level, pemain, rintangan, menunggu gambar selesai dimuat
+2. startLevel (level.js)  -> menyiapkan level, pemain, rintangan, menunggu gambar selesai dimuat
 3. loop (main.js)         -> tiap frame memanggil update() lalu render()
-4. update (game.js)       -> gerak pemain, banteng mengejar, cek tabrakan, cek tertangkap / sampai gerbang
-5. render (render.js)     -> menggambar background, rintangan, banteng, pemain, efek
+4. update (game.js)       -> gerak pemain, musuh mengejar, cek tabrakan, cek tertangkap / sampai gerbang
+5. render (render.js)     -> menggambar background, rintangan, musuh, pemain, efek
 6. Sampai gerbang         -> finishLevel() -> progres disimpan -> kembali ke layar pilih peminatan
 
 YANG SERING INGIN DIUBAH
@@ -39,14 +46,14 @@ YANG SERING INGIN DIUBAH
 - Rintangan lebih banyak     : pengaturan.js  (PENGALI_JARAK_RINTANGAN, makin kecil = makin rapat)
 - Peluang tiap rintangan     : rintangan.js   (fungsi pilihJenis)
 - Nama peminatan / studio    : pengaturan.js  (MAPS)
-- Gambar rintangan / banteng : timpa file PNG di assets/<map>/ dengan nama yang sama
+- Gambar rintangan / musuh : timpa file PNG di assets/<map>/ dengan nama yang sama
 - Layar loading (teks, lama)   : pengaturan.js  (MIN_MEMUAT, deskripsi tiap peminatan di MAPS, TEKS_PROLOG); animasi: assets/ui/loading-1..8.png
 
 ----------------------------------------------------------------
 LIMA PEMINATAN & RINTANGAN TIAP MAP (assets/map1 ... map5)
 ----------------------------------------------------------------
 Nama file sama di tiap folder map, isinya beda sesuai tema:
-  ob1 / ob2   rintangan kecil (bisa dihancurkan banteng, ada pecahan debris_ob1/ob2)
+  ob1 / ob2   rintangan kecil (bisa dihancurkan musuh, ada pecahan debris_ob1/ob2)
   p1 / p2     rintangan tema (pecahan debris_p1/p2)       tall = tinggi sempit     hang = menggantung (menunduk)
   car / big   besar, TIDAK bisa dihancurkan, bisa dinaiki
 
@@ -61,31 +68,31 @@ Mau menambah / mengganti peminatan: edit daftar MAPS di pengaturan.js, posisi no
 lalu siapkan folder assets/mapN/ dengan nama file yang sama seperti map lain.
 
 ----------------------------------------------------------------
-FITUR BARU: TERTANGKAP, BANTENG MELOMPAT, SEMBUNYI DI PAPAN
+FITUR BARU: TERTANGKAP, MUSUH MELOMPAT, SEMBUNYI DI PAPAN
 ----------------------------------------------------------------
-Animasi karakter ditabrak banteng : assets/char/<baju>/caught1..6.png  (angka di pengaturan.js: TERTANGKAP)
+Animasi karakter ditabrak musuh : assets/char/<baju>/caught1..6.png  (angka di pengaturan.js: TERTANGKAP)
 Karakter bersembunyi              : assets/char/<baju>/hide1..2.png
-Banteng bingung (tanda tanya)     : assets/<map>/chaser_bingung1..3.png  (ANIM_BANTENG.bingung)
+Musuh bingung (tanda tanya)     : assets/<map>/chaser_bingung1..3.png  (ANIM_MUSUH.bingung)
 Tombol sembunyi (layar sentuh)    : assets/ui/btn-hide.png
 
-Banteng melompati blok besar & mobil  : game.js, fungsi bantengMenghancurkanRintangan
+Musuh melompati blok besar & mobil  : musuh.js, fungsi musuhMenghancurkanRintangan
                                         (tinggi/jarak lompat: LOMPAT_TINGGI, LOMPAT_AWAL, LOMPAT_AKHIR di pengaturan.js)
-Sembunyi di papan info                : game.js, fungsi togolSembunyi + urusSembunyi + bantengBingung
+Sembunyi di papan info                : sembunyi.js (togolSembunyi + urusSembunyi) + musuh.js (musuhBingung)
                                         (lama maksimal, jarak minimal, dll: SEMBUNYI_MAX, SEMBUNYI_MIN_JARAK, BINGUNG_SETELAH,
                                          posisi objek: OBJEK_SEMBUNYI di pengaturan.js)
 Objek tempat sembunyi (beda tiap map) : assets/mapN/hide_obj.png, ukuran 100x80, kecil di KOLONG papan (antara dua tiang)
                                         (map1 lightbox iklan, map2 flight case, map3 speaker monitor, map4 tas belanja, map5 TV retro)
                                         Ganti PNG-nya untuk mengubah tampilan; posisi/ukuran: OBJEK_SEMBUNYI di pengaturan.js.
   Cara main: dekat papan info, PENCET E (HP: ketuk tombol mata). Pemain berlari ke kolong papan dan bersembunyi
-  di balik objek, banteng mondar-mandir bingung. Papan tidak diperbesar (sudah terbaca di layar).
+  di balik objek, musuh mondar-mandir bingung. Papan tidak diperbesar (sudah terbaca di layar).
   Pencet E lagi (atau 5 detik habis) = keluar. Satu papan hanya bisa dipakai sekali.
   Area di sekitar papan dikosongkan dari rintangan.
 
 ----------------------------------------------------------------
 KEYBOARD DI MENU (tanpa mouse)
 ----------------------------------------------------------------
-menu.js, bagian "KEYBOARD DI MENU": panah / WASD pindah sorotan, Enter menekan tombol, Esc / Backspace kembali.
-Tombol yang pertama kali tersorot di tiap layar diatur di TOMBOL_UTAMA (menu.js). Cincin kuning = tombol yang tersorot (style.css, body.keyboard).
+keyboard-menu.js: panah / WASD pindah sorotan, Enter menekan tombol, Esc / Backspace kembali.
+Tombol yang pertama kali tersorot di tiap layar diatur di TOMBOL_UTAMA (keyboard-menu.js). Cincin kuning = tombol yang tersorot (style.css, body.keyboard).
 Saat bermain: Enter = pause, M = suara, F = layar penuh (kontrol.js).
 
 ----------------------------------------------------------------
@@ -97,12 +104,16 @@ Layar petunjuk     : "Sebelum Mulai", muncul SETELAH loading dan SEBELUM hitung 
 Pengingat "Pencet E": muncul begitu papan info terlihat (SEMBUNYI_JAUH px sebelum papan) dan berkedip pelan sampai papan terlewati.
                       Tampilan: render.js, fungsi gambarPetunjukSembunyi.
 
-- Banteng melompati rintangan kuat (mobil/besar) dengan gambar sendiri: assets/<map>/chaser_lompat1-3.png (ANIM_BANTENG.lompat; gambar dipilih sesuai posisi lompatan, level.lompatU). Generator: gen_lompat.py
+- Musuh melompati rintangan kuat (mobil/besar) dengan gambar sendiri: assets/<map>/chaser_lompat1-3.png (ANIM_MUSUH.lompat; gambar dipilih sesuai posisi lompatan, level.lompatU). Generator: gen_lompat.py
 
-- Banteng bangga setelah menangkap pemain: assets/<map>/chaser_bangga1-3.png (ANIM_BANTENG.bangga, dipilih di render.js gambarBanteng setelah 0.35 dtk adegan tertangkap). Generator: gen_bangga.py
+- Musuh bangga setelah menangkap pemain: assets/<map>/chaser_bangga1-3.png (ANIM_MUSUH.bangga, dipilih di render.js gambarMusuh setelah 0.35 dtk adegan tertangkap). Generator: gen_bangga.py
 
-- Tombol layar sentuh (Lari/Lompat/Tunduk): index.html #kontrolHP, kontrol.js (pasangTombolSentuh, setelanSentuh), layar #setelan (menu.js bukaSetelan), CSS #kontrolHP. Pengaturan tersimpan di localStorage 'promedSentuh'. PNG: assets/ui/btn-run/jump/duck.png
+- Tombol layar sentuh (Lari/Lompat/Tunduk): index.html #kontrolHP, kontrol.js (pasangTombolSentuh, setelanSentuh), layar #setelan (tombol-menu.js bukaSetelan), CSS #kontrolHP. Pengaturan tersimpan di localStorage 'promedSentuh'. PNG: assets/ui/btn-run/jump/duck.png
 
-- Koleksi Informasi: tombol #btnKoleksi di home, layar #koleksi/#infoBesar (menu.js bukaKoleksi). Papan yang sudah dibaca (pemain sampai ngumpet di balik objek) dicatat di state.js tandaiInfoDibaca -> localStorage 'promedInfo'; yang belum tampil abu-abu terkunci.
+- Koleksi Informasi: tombol #btnKoleksi di home, layar #koleksi/#infoBesar (tombol-menu.js bukaKoleksi). Papan yang sudah dibaca (pemain sampai ngumpet di balik objek) dicatat di state.js tandaiInfoDibaca -> localStorage 'promedInfo'; yang belum tampil abu-abu terkunci.
 
 - Prolog: jaket kuning melayang (assets/prolog/jas.png, JAS di pengaturan.js, posisiJas/jasMenyentuhPemain di game.js, gambarJasMelayang di render.js). Baju hanya berganti kalau jas diambil; sampai gerbang tanpa jas = game over (finishLevel -> level.gagalJas). Generator: gen_jas.py
+
+- style.css disusun ulang per bagian (daftar isi di bagian atas file): satu properti per baris, komentar Bahasa Indonesia, semua penyesuaian HP landscape dikumpulkan di bagian 13. Tampilan tidak berubah.
+
+- Semua file .js dirapikan dengan format konsisten (spasi, baris panjang dipecah) dan index.html diberi komentar + SVG dipecah per elemen. Logika tidak diubah (hasil kode diuji sama persis).
