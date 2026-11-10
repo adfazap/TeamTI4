@@ -36,17 +36,17 @@ function tampilkanPetunjuk(aksiMulai){
   if (level.prolog) {
     baris = [
       [folder + 'jas.png',    'Jaket kuninng melayang',      'Lompat dan ambil di tengah prolog. WAJIB: kalau sampai gerbang tanpa mengambilnya, game over.'],
-      [folder + 'buku.png',   'Buku, meja, kertas ujian', 'Lompat dengan  ↑ / Spasi. Banteng bisa menghancurkannya.'],
-      [folder + 'big.png',    'Blok besar',               'Lompat dan naiki. Banteng tidak bisa menghancurkannya, ia melompatinya.'],
+      [folder + 'buku.png',   'Buku, meja, kertas ujian', 'Lompat dengan  ↑ / Spasi. Musuh bisa menghancurkannya.'],
+      [folder + 'big.png',    'Blok besar',               'Lompat dan naiki. musuh tidak bisa menghancurkannya, ia melompatinya.'],
       [folder + 'banner.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],
     ];
   } else {
     baris = [
-      [folder + 'ob1.png',  'Rintangan kecil',            'Lompat dengan  ↑ / Spasi. Banteng bisa menghancurkannya.'],
+      [folder + 'ob1.png',  'Rintangan kecil',            'Lompat dengan  ↑ / Spasi. Musuh bisa menghancurkannya.'],
       [folder + 'tall.png', 'Rintangan tinggi',           'Lompat tepat waktu. Kalau kurang tinggi, tekan  ↑ / Spasi  lagi saat di udara (double jump).'],
-      [folder + 'big.png',  'Blok besar dan mobil',       'Lompat dan naiki. Banteng tidak bisa menghancurkannya, ia melompatinya.'],
+      [folder + 'big.png',  'Blok besar dan mobil',       'Lompat dan naiki. musuh tidak bisa menghancurkannya, ia melompatinya.'],
       [folder + 'hang.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],
-      ['assets/ui/btn-hide.png', 'Papan info',            'Pencet  E  di dekat papan untuk bersembunyi di kolongnya dan membaca. Banteng jadi bingung.'],
+      ['assets/ui/btn-hide.png', 'Papan info',            'Pencet  E  di dekat papan untuk bersembunyi di kolongnya dan membaca. musuh jadi bingung.'],
     ];
   }
 
