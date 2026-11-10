@@ -72,8 +72,12 @@ function tampilkanPetunjuk(aksiMulai) {
         'Papan info',
         'Pencet  E  di dekat papan untuk bersembunyi di kolongnya dan membaca. Musuh jadi bingung.'
       ]
+      [folder + 'jas.png',    'Jaket kuninng melayang',      'Lompat dan ambil di tengah prolog. WAJIB: kalau sampai gerbang tanpa mengambilnya, game over.'],
+      [folder + 'buku.png',   'Buku, meja, kertas ujian', 'Lompat dengan  ↑ / Spasi. Musuh bisa menghancurkannya.'],
+      [folder + 'big.png',    'Blok besar',               'Lompat dan naiki. musuh tidak bisa menghancurkannya, ia melompatinya.'],
+      [folder + 'banner.png', 'Menggantung di atas kepala', 'Tahan  ↓ / S  untuk menunduk (slide).'],
     ];
-  }
+  } 
 
   let html = '';
   for (const b of baris) {
