@@ -26,6 +26,8 @@ const GRAVITY = 2600;       // gravitasi (makin besar = jatuh makin cepat)
 const JUMP = -840;          // kekuatan lompat pertama (minus = ke atas)
 const JUMP2 = -760;         // kekuatan lompat kedua (double jump)
 
+
+
 /* ----- pengejar (banteng) ----- */
 const START_GAP = 170;      // jarak awal banteng ke pemain
 const MAX_GAP = 340;        // jarak paling jauh banteng kalau pemain tidak pernah menabrak
